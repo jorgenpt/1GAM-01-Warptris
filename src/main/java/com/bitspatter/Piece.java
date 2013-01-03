@@ -15,13 +15,13 @@ public class Piece {
         this.color = color;
         this.blocks = blocks;
     }
-    
+
     public void render(Graphics g, float blockSize) {
         g.setColor(color);
         for (int y = 0; y < blocks.length; ++y) {
             for (int x = 0; x < blocks[y].length; ++x) {
                 if (blocks[y][x]) {
-                    g.fillRect(x * blockSize, y * blockSize, blockSize, blockSize);;
+                    g.fillRect(x * blockSize, y * blockSize, blockSize, blockSize);
                 }
             }
         }
@@ -46,7 +46,6 @@ public class Piece {
         Piece newPiece = new Piece(color, newBlocks);
         newPiece.x = x;
         newPiece.y = y;
-
         return newPiece;
     }
 }

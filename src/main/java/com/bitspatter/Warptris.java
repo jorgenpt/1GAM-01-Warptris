@@ -42,10 +42,10 @@ public class Warptris extends BasicGame {
         } else if (input.isKeyPressed(Input.KEY_RIGHT)) {
             movePieceHorizontally(1);
         }
-        
+
         if (input.isKeyPressed(Input.KEY_Z)) {
             rotatePiece(false);
-        } else if (input.isKeyPressed(Input.KEY_X)){
+        } else if (input.isKeyPressed(Input.KEY_X)) {
             rotatePiece(true);
         }
 
@@ -53,7 +53,8 @@ public class Warptris extends BasicGame {
             msTillNextStep = SECONDS_PER_STEP * 1000;
             lowerPiece();
         } else if (input.isKeyPressed(Input.KEY_UP)) {
-            while (!lowerPiece());
+            while (!lowerPiece())
+                ;
         } else {
             msTillNextStep -= delta;
             if (msTillNextStep < 0) {
@@ -62,7 +63,7 @@ public class Warptris extends BasicGame {
             }
         }
     }
-    
+
     private void rotatePiece(boolean clockwise) throws SlickException {
         Piece newPiece = currentPiece.rotated(clockwise);
         if (board.nudgeToValid(newPiece)) {
@@ -88,10 +89,10 @@ public class Warptris extends BasicGame {
             currentPiece = generateNewPiece();
             return true;
         }
-        
+
         return false;
     }
-    
+
     private Piece generateNewPiece() throws SlickException {
         return Piece.createL();
     }

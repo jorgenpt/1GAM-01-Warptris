@@ -107,7 +107,7 @@ public class Board {
                 if (piece.y + y >= height) {
                     continue;
                 }
-            
+
                 if (piece.x + x < 0)
                     return false;
                 if (piece.x + x >= width)
