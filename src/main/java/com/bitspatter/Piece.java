@@ -101,7 +101,7 @@ public class Piece implements Cloneable {
     public void enableWarping(GameContainer gc, boolean warping) {
         this.warping = warping;
         if (!warping) {
-            dragging = false;
+            stopDrag();
         }
     }
 
@@ -135,25 +135,108 @@ public class Piece implements Cloneable {
             return;
         }
 
-        draggingX = blockX;
-        draggingY = blockY;
+        draggingX = localX;
+        draggingY = localY;
         dragging = true;
     }
 
-    public void stopDrag(int blockX, int blockY) {
+    public void stopDrag() {
         dragging = false;
+    }
+
+    boolean[][] growBlocks(int offsetX, int offsetY, int growX, int growY) {
+        if (offsetX > growX || offsetY > growY) {
+            return null;
+        }
+
+        boolean[][] newBlocks = new boolean[getHeight() + growY][getWidth() + growX];
+        for (int y = 0; y < getHeight(); ++y) {
+            System.arraycopy(blocks[y], 0, newBlocks[y + offsetY], offsetX, getWidth());
+        }
+
+        return newBlocks;
+    }
+
+    public void stopDrag(int blockX, int blockY) {
+        if (!dragging) {
+            return;
+        }
+
+        stopDrag();
 
         int localX = blockX - x;
-        if (localX < -1 || localX > getWidth()) {
-            return;
-        }
-
         int localY = blockY - y;
-        if (localY < -1 || localY > getHeight()) {
+
+        // If it's inside the current piece, just check if it's occupied.
+        if (contains(blockX, blockY)) {
+            // Was it dropped on top of an occupied space.
+            if (blocks[localY][localX]) {
+                return;
+            }
+
+            blocks[localY][localX] = true;
+            blocks[draggingY][draggingX] = false;
             return;
         }
 
-        // TODO: Place new block.
+        // It has to be within one block of a current block.
+        if (!hasAnyNonDraggedNeighbor(localX, localY)) {
+            return;
+        }
+
+        blocks[draggingY][draggingX] = false;
+
+        int growX = 0, offsetX = 0;
+        int growY = 0, offsetY = 0;
+
+        if (localX < 0) {
+            growX = 1;
+            offsetX = 1;
+        } else if (localX >= getWidth()) {
+            growX = 1;
+        }
+
+        if (localY < 0) {
+            growY = 1;
+            offsetY = 1;
+        } else if (localY >= getHeight()) {
+            growY = 1;
+        }
+
+        // System.out.println("")
+        blocks = growBlocks(offsetX, offsetY, growX, growY);
+        blocks[localY + offsetY][localX + offsetX] = true;
+        x -= offsetX;
+        y -= offsetY;
+    }
+
+    public boolean hasAnyNonDraggedNeighbor(int localX, int localY) {
+        for (int xDelta = -1; xDelta <= 1; ++xDelta) {
+            for (int yDelta = -1; yDelta <= 1; ++yDelta) {
+                int neighborX = xDelta + localX;
+                int neighborY = yDelta + localY;
+                if (neighborY == draggingY && neighborX == draggingX)
+                    continue;
+
+                if (containsLocal(neighborY, neighborX) && blocks[neighborY][neighborX]) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public boolean containsLocal(int localX, int localY) {
+        if (localX < 0 || localY < 0) {
+            return false;
+        }
+
+        if (localX >= getWidth() || localY >= getHeight()) {
+            return false;
+        }
+
+        return true;
     }
 
     public boolean contains(int blockX, int blockY) {

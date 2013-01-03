@@ -164,7 +164,11 @@ public class Warptris extends BasicGame implements MouseListener {
     @Override
     public void mouseReleased(int button, int x, int y) {
         if (button == 0) {
-            currentPiece.stopDrag(blockXFromPixel(x), blockYFromPixel(y));
+            if (boardRect.contains(x, y)) {
+                currentPiece.stopDrag(blockXFromPixel(x), blockYFromPixel(y));
+            } else {
+                currentPiece.stopDrag();
+            }
         }
     }
 
