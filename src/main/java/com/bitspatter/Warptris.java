@@ -35,8 +35,10 @@ public class Warptris extends BasicGame implements MouseListener {
         currentPiece.render(g, blockSize);
         g.resetTransform();
 
-        Input input = gc.getInput();
-        currentPiece.renderDraggable(g, input.getMouseX() - dragOffsetX, input.getMouseY() - dragOffsetY, blockSize);
+        if (warping) {
+            Input input = gc.getInput();
+            currentPiece.renderDraggable(g, input.getMouseX() - dragOffsetX, input.getMouseY() - dragOffsetY, blockSize);
+        }
 
         board.render(g, boardRect, blockSize);
     }
