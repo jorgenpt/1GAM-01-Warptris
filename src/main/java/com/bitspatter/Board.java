@@ -68,8 +68,34 @@ public class Board {
                 }
             }
         }
-        
+
+        for (int y = piece.blocks.length - 1; y >= 0; --y) {
+            boolean wholeRow = true;
+            for (int x = 0; x < width; ++x) {
+                if (finalizedBlocks[piece.y + y][x] == null) {
+                    wholeRow = false;
+                    break;
+                }
+            }
+
+            if (wholeRow) {
+                clearRow(piece.y + y);
+                y -= 1;
+            }
+        }
+
         return gameEnded;
+    }
+
+    private void clearRow(int row) {
+        for (int y = row; y > 0; --y) {
+            for (int x = 0; x < width; ++x) {
+                finalizedBlocks[y][x] = finalizedBlocks[y - 1][x];
+            }
+        }
+        for (int x = 0; x < width; ++x) {
+            finalizedBlocks[0][x] = null;
+        }
     }
 
     public boolean hasValidX(Piece piece) {
