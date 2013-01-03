@@ -14,7 +14,7 @@ public class Piece implements Cloneable {
     public BlockRenderer renderer;
     public Color color;
     public boolean[][] blocks;
-    public int x, y;
+    public int topLeftX, topLeftY;
 
     // True if this piece has been mutated so far.
     public boolean warped = false;
@@ -23,7 +23,7 @@ public class Piece implements Cloneable {
         this.renderer = renderer;
         this.color = color;
         this.blocks = blocks;
-        this.x = this.y = 0;
+        this.topLeftX = this.topLeftY = 0;
     }
 
     boolean shouldRender(int x, int y) {
@@ -38,7 +38,7 @@ public class Piece implements Cloneable {
         for (int y = 0; y < blocks.length; ++y) {
             for (int x = 0; x < blocks[y].length; ++x) {
                 if (shouldRender(x, y)) {
-                    renderer.render(g, this.x + x, this.y + y, color);
+                    renderer.render(g, topLeftX + x, topLeftY + y, color);
                 }
             }
         }
@@ -100,13 +100,13 @@ public class Piece implements Cloneable {
         }
 
         Piece newPiece = new Piece(renderer, color, newBlocks);
-        newPiece.x = x;
-        newPiece.y = y;
+        newPiece.topLeftX = topLeftX;
+        newPiece.topLeftY = topLeftY;
         return newPiece;
     }
 
     public int getMaxX() {
-        return getWidth() + x;
+        return getWidth() + topLeftX;
     }
 
     public int getWidth() {
@@ -114,7 +114,7 @@ public class Piece implements Cloneable {
     }
 
     public int getMaxY() {
-        return getHeight() + y;
+        return getHeight() + topLeftY;
     }
 
     public int getHeight() {
@@ -129,8 +129,8 @@ public class Piece implements Cloneable {
             return;
         }
 
-        int localX = blockX - x;
-        int localY = blockY - y;
+        int localX = blockX - topLeftX;
+        int localY = blockY - topLeftY;
         if (!blocks[localY][localX]) {
             return;
         }
@@ -164,8 +164,8 @@ public class Piece implements Cloneable {
 
         stopDrag();
 
-        int localX = blockX - x;
-        int localY = blockY - y;
+        int localX = blockX - topLeftX;
+        int localY = blockY - topLeftY;
 
         // If it's inside the current piece, just check if it's occupied.
         if (contains(blockX, blockY)) {
@@ -205,8 +205,8 @@ public class Piece implements Cloneable {
         blocks = growBlocks(offsetX, offsetY, growX, growY);
         blocks[draggingY + offsetY][draggingX + offsetX] = false;
         blocks[localY + offsetY][localX + offsetX] = true;
-        x -= offsetX;
-        y -= offsetY;
+        topLeftX -= offsetX;
+        topLeftY -= offsetY;
 
         return true;
     }
@@ -241,7 +241,7 @@ public class Piece implements Cloneable {
     }
 
     public boolean contains(int blockX, int blockY) {
-        if (blockX < x || blockY < y) {
+        if (blockX < topLeftX || blockY < topLeftY) {
             return false;
         }
 

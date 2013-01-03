@@ -76,15 +76,15 @@ public class Board {
                     continue;
                 }
 
-                if (piece.x + x >= width) {
+                if (piece.topLeftX + x >= width) {
                     return true;
                 }
 
-                if (piece.y + y >= height) {
+                if (piece.topLeftY + y >= height) {
                     return true;
                 }
 
-                if (finalizedBlocks[piece.y + y][piece.x + x] != null) {
+                if (finalizedBlocks[piece.topLeftY + y][piece.topLeftX + x] != null) {
                     return true;
                 }
             }
@@ -101,15 +101,15 @@ public class Board {
                     continue;
                 }
 
-                finalizedBlocks[piece.y + y][piece.x + x] = piece.color;
-                if (piece.y + y == 0) {
+                finalizedBlocks[piece.topLeftY + y][piece.topLeftX + x] = piece.color;
+                if (piece.topLeftY + y == 0) {
                     gameEnded = true;
                 }
             }
         }
 
         for (int y = piece.getHeight() - 1; y >= 0; --y) {
-            int blockY = piece.y + y;
+            int blockY = piece.topLeftY + y;
             if (blockY >= height) {
                 continue;
             }
@@ -148,16 +148,16 @@ public class Board {
                 if (!piece.blocks[y][x]) {
                     continue;
                 }
-                if (piece.y + y >= height) {
+                if (piece.topLeftY + y >= height) {
                     continue;
                 }
 
-                if (piece.x + x < 0)
+                if (piece.topLeftX + x < 0)
                     return false;
-                if (piece.x + x >= width)
+                if (piece.topLeftX + x >= width)
                     return false;
 
-                if (finalizedBlocks[piece.y + y][piece.x + x] != null) {
+                if (finalizedBlocks[piece.topLeftY + y][piece.topLeftX + x] != null) {
                     return false;
                 }
             }
@@ -167,17 +167,17 @@ public class Board {
 
     public boolean nudgeToValid(Piece piece) {
         if (!hasValidX(piece)) {
-            piece.x++;
+            piece.topLeftX++;
             if (hasValidX(piece)) {
                 return true;
             } else {
-                piece.x -= 2;
+                piece.topLeftX -= 2;
                 return hasValidX(piece);
             }
         }
 
         if (pieceLanded(piece)) {
-            piece.y--;
+            piece.topLeftY--;
             return pieceLanded(piece);
         }
 

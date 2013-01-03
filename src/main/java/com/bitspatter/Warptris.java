@@ -16,7 +16,7 @@ public class Warptris extends BasicGame implements MouseListener {
     Piece currentPiece;
 
     BlockRenderer blockRenderer;
-    Rectangle boardRect;
+    Rectangle boardRenderArea;
 
     // Number of ms until we do a "soft drop" (i.e. move the current piece one step down)
     int msTillNextStep;
@@ -31,19 +31,19 @@ public class Warptris extends BasicGame implements MouseListener {
     @Override
     public void render(GameContainer gc, Graphics g) throws SlickException {
         if (warping) {
-            board.renderWarping(g, boardRect);
+            board.renderWarping(g, boardRenderArea);
         }
 
         currentPiece.render(g);
 
         if (warping) {
             Input input = gc.getInput();
-            g.setClip(boardRect);
+            g.setClip(boardRenderArea);
             currentPiece.renderDraggable(g, input.getMouseX() - dragOffsetX, input.getMouseY() - dragOffsetY);
             g.clearClip();
         }
 
-        board.render(g, boardRect, warping);
+        board.render(g, boardRenderArea, warping);
     }
 
     @Override
@@ -72,8 +72,8 @@ public class Warptris extends BasicGame implements MouseListener {
         boardHeight = blockSize * BOARD_HEIGHT;
         float actualYMargin = (gc.getHeight() - boardHeight) / 2.0f;
 
-        boardRect = new Rectangle(BOARD_MARGIN, actualYMargin, blockSize * BOARD_WIDTH, boardHeight);
-        blockRenderer = new BlockRenderer(boardRect, blockSize);
+        boardRenderArea = new Rectangle(BOARD_MARGIN, actualYMargin, blockSize * BOARD_WIDTH, boardHeight);
+        blockRenderer = new BlockRenderer(boardRenderArea, blockSize);
     }
 
     private void toggleWarping() {
@@ -134,16 +134,16 @@ public class Warptris extends BasicGame implements MouseListener {
     }
 
     private void movePieceHorizontally(int steps) {
-        currentPiece.x += steps;
+        currentPiece.topLeftX += steps;
         if (!board.hasValidX(currentPiece)) {
-            currentPiece.x -= steps;
+            currentPiece.topLeftX -= steps;
         }
     }
 
     private boolean lowerPiece() throws SlickException {
-        currentPiece.y++;
+        currentPiece.topLeftY++;
         if (board.pieceLanded(currentPiece)) {
-            currentPiece.y--;
+            currentPiece.topLeftY--;
             if (board.finalizePiece(currentPiece)) {
                 System.exit(0);
             }
