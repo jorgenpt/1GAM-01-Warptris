@@ -182,6 +182,7 @@ public class Warptris extends BasicGame implements MouseListener {
                 if (currentPiece.stopDrag(blockXFromPixel(x), blockYFromPixel(y))) {
                     currentPiece.warped = true;
                     warping = false;
+                    board.mutate();
                 }
             } else {
                 currentPiece.stopDrag();
