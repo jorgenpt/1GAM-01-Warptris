@@ -135,7 +135,7 @@ public class Warptris extends BasicGame implements MouseListener {
 
     private void movePieceHorizontally(int steps) {
         currentPiece.topLeftX += steps;
-        if (!board.hasValidX(currentPiece)) {
+        if (board.pieceLanded(currentPiece)) {
             currentPiece.topLeftX -= steps;
         }
     }

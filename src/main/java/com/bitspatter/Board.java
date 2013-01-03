@@ -148,46 +148,24 @@ public class Board {
         }
     }
 
-    public boolean hasValidX(Piece piece) {
-        for (int y = 0; y < piece.blocks.length; ++y) {
-            for (int x = 0; x < piece.blocks[y].length; ++x) {
-                if (!piece.blocks[y][x]) {
-                    continue;
-                }
-                if (piece.topLeftY + y >= height) {
-                    continue;
-                }
-
-                if (piece.topLeftX + x < 0)
-                    return false;
-                if (piece.topLeftX + x >= width)
-                    return false;
-
-                if (finalizedBlocks[piece.topLeftY + y][piece.topLeftX + x] != null) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
     public boolean nudgeToValid(Piece piece) {
-        if (!hasValidX(piece)) {
-            piece.topLeftX++;
-            if (hasValidX(piece)) {
-                return true;
-            } else {
-                piece.topLeftX -= 2;
-                return hasValidX(piece);
+        if (!pieceLanded(piece)) {
+            return true;
+        }
+
+        int startX = piece.topLeftX - 1;
+        int startY = piece.topLeftY - 1;
+        for (int x = startX; x <= startX + 2; ++x) {
+            piece.topLeftX = x;
+            for (int y = startY; y <= startY + 2; ++y) {
+                piece.topLeftY = y;
+                if (!pieceLanded(piece)) {
+                    return true;
+                }
             }
         }
 
-        if (pieceLanded(piece)) {
-            piece.topLeftY--;
-            return pieceLanded(piece);
-        }
-
-        return true;
+        return false;
     }
 
     Random random = new Random();
