@@ -3,23 +3,41 @@ package com.bitspatter;
 import org.newdawn.slick.*;
 import org.newdawn.slick.geom.Rectangle;
 
-public class Warptris extends BasicGame {
-    float blockSize;
-    Rectangle boardRect;
-    Board board;
-    Piece currentPiece;
-    int msTillNextStep;
-
+public class Warptris extends BasicGame implements MouseListener {
     final int SECONDS_PER_STEP = 1;
     final int BOARD_MARGIN = 10;
     final int BOARD_WIDTH = 10, BOARD_HEIGHT = 22;
+
+    // Board including landed pieces.
+    Board board;
+    // Currently dropping piece.
+    Piece currentPiece;
+
+    // Where we render the board in the window.
+    Rectangle boardRect;
+
+    // Sides of a block.
+    float blockSize;
+
+    // Number of ms until we do a "soft drop" (i.e. move the current piece one step down)
+    int msTillNextStep;
+
+    // Whether or not we're currently in "warp" mode, i.e. game paused and allowing player to move blocks.
+    boolean warping = false;
+
+    // This is the delta between the mouse pointer and the top left of the currently dragged block, to make dragging
+    // feel natural.
+    int dragOffsetX, dragOffsetY;
 
     @Override
     public void render(GameContainer gc, Graphics g) throws SlickException {
         g.translate(boardRect.getX() + currentPiece.x * blockSize, boardRect.getY() + currentPiece.y * blockSize);
         currentPiece.render(g, blockSize);
-
         g.resetTransform();
+
+        Input input = gc.getInput();
+        currentPiece.renderDraggable(g, input.getMouseX() - dragOffsetX, input.getMouseY() - dragOffsetY, blockSize);
+
         board.render(g, boardRect, blockSize);
     }
 
@@ -34,12 +52,24 @@ public class Warptris extends BasicGame {
         board = new Board(BOARD_WIDTH, BOARD_HEIGHT);
         currentPiece = Piece.getRandomPiece();
 
-        gc.getInput().enableKeyRepeat();
+        Input input = gc.getInput();
+        input.enableKeyRepeat();
+        input.addMouseListener(this);
     }
 
     @Override
     public void update(GameContainer gc, int delta) throws SlickException {
         Input input = gc.getInput();
+
+        if (input.isKeyPressed(Input.KEY_SPACE)) {
+            warping = !warping;
+            currentPiece.enableWarping(gc, warping);
+        }
+
+        if (warping) {
+            return;
+        }
+
         if (input.isKeyPressed(Input.KEY_LEFT)) {
             movePieceHorizontally(-1);
         } else if (input.isKeyPressed(Input.KEY_RIGHT)) {
@@ -94,6 +124,46 @@ public class Warptris extends BasicGame {
         }
 
         return false;
+    }
+
+    @Override
+    public boolean isAcceptingInput() {
+        return warping;
+    }
+
+    int blockXFromPixel(int pixelX) {
+        return (int) ((pixelX - boardRect.getX()) / blockSize);
+    }
+
+    int blockYFromPixel(int pixelY) {
+        return (int) ((pixelY - boardRect.getY()) / blockSize);
+    }
+
+    @Override
+    public void mousePressed(int button, int x, int y) {
+        if (button != 0) {
+            return;
+        }
+
+        if (boardRect.contains(x, y)) {
+            int blockX = blockXFromPixel(x);
+            int blockY = blockYFromPixel(y);
+            if (!currentPiece.contains(blockX, blockY)) {
+                return;
+            }
+
+            dragOffsetX = (int) (x - (blockX * blockSize + boardRect.getX()));
+            dragOffsetY = (int) (y - (blockY * blockSize + boardRect.getY()));
+
+            currentPiece.startDrag(blockX, blockY);
+        }
+    }
+
+    @Override
+    public void mouseReleased(int button, int x, int y) {
+        if (button == 0) {
+            currentPiece.stopDrag(blockXFromPixel(x), blockYFromPixel(y));
+        }
     }
 
     public Warptris() {

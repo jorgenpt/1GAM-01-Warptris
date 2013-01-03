@@ -3,6 +3,7 @@ package com.bitspatter;
 import java.util.Random;
 
 import org.newdawn.slick.Color;
+import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
 
@@ -12,22 +13,39 @@ public class Piece implements Cloneable {
     public int x, y;
     public boolean[][] blocks;
     public Color color;
+    public boolean warping;
 
     public Piece(Color color, boolean[][] blocks) throws SlickException {
         this.x = 0;
         this.y = 0;
         this.color = color;
         this.blocks = blocks;
+        this.warping = false;
+    }
+
+    boolean shouldRender(int x, int y) {
+        if (dragging && (x == draggingX && y == draggingY)) {
+            return false;
+        }
+
+        return blocks[y][x];
     }
 
     public void render(Graphics g, float blockSize) {
         g.setColor(color);
         for (int y = 0; y < blocks.length; ++y) {
             for (int x = 0; x < blocks[y].length; ++x) {
-                if (blocks[y][x]) {
+                if (shouldRender(x, y)) {
                     g.fillRect(x * blockSize, y * blockSize, blockSize, blockSize);
                 }
             }
+        }
+    }
+
+    public void renderDraggable(Graphics g, float x, float y, float blockSize) {
+        if (dragging) {
+            g.setColor(color);
+            g.fillRect(x, y, blockSize, blockSize);
         }
     }
 
@@ -78,5 +96,75 @@ public class Piece implements Cloneable {
         newPiece.x = x;
         newPiece.y = y;
         return newPiece;
+    }
+
+    public void enableWarping(GameContainer gc, boolean warping) {
+        this.warping = warping;
+        if (!warping) {
+            dragging = false;
+        }
+    }
+
+    public int getMaxX() {
+        return getWidth() + x;
+    }
+
+    public int getWidth() {
+        return blocks[0].length;
+    }
+
+    public int getMaxY() {
+        return getHeight() + y;
+    }
+
+    public int getHeight() {
+        return blocks.length;
+    }
+
+    int draggingX, draggingY;
+    boolean dragging = false;
+
+    public void startDrag(int blockX, int blockY) {
+        if (!contains(blockX, blockY)) {
+            return;
+        }
+
+        int localX = blockX - x;
+        int localY = blockY - y;
+        if (!blocks[localY][localX]) {
+            return;
+        }
+
+        draggingX = blockX;
+        draggingY = blockY;
+        dragging = true;
+    }
+
+    public void stopDrag(int blockX, int blockY) {
+        dragging = false;
+
+        int localX = blockX - x;
+        if (localX < -1 || localX > getWidth()) {
+            return;
+        }
+
+        int localY = blockY - y;
+        if (localY < -1 || localY > getHeight()) {
+            return;
+        }
+
+        // TODO: Place new block.
+    }
+
+    public boolean contains(int blockX, int blockY) {
+        if (blockX < x || blockY < y) {
+            return false;
+        }
+
+        if (blockX >= getMaxX() || blockY >= getMaxY()) {
+            return false;
+        }
+
+        return true;
     }
 }
