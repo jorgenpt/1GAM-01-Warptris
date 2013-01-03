@@ -3,6 +3,8 @@ package com.bitspatter;
 import org.newdawn.slick.*;
 import org.newdawn.slick.geom.Rectangle;
 
+import com.bitspatter.renderer.BlockRenderer;
+
 public class Warptris extends BasicGame implements MouseListener {
     final int SECONDS_PER_STEP = 1;
     final int BOARD_MARGIN = 10;
@@ -13,11 +15,8 @@ public class Warptris extends BasicGame implements MouseListener {
     // Currently dropping piece.
     Piece currentPiece;
 
-    // Where we render the board in the window.
+    BlockRenderer blockRenderer;
     Rectangle boardRect;
-
-    // Sides of a block.
-    float blockSize;
 
     // Number of ms until we do a "soft drop" (i.e. move the current piece one step down)
     int msTillNextStep;
@@ -35,34 +34,37 @@ public class Warptris extends BasicGame implements MouseListener {
             board.renderWarping(g, boardRect);
         }
 
-        g.translate(boardRect.getX() + currentPiece.x * blockSize, boardRect.getY() + currentPiece.y * blockSize);
-        currentPiece.render(g, blockSize);
-        g.resetTransform();
+        currentPiece.render(g);
 
         if (warping) {
             Input input = gc.getInput();
             g.setClip(boardRect);
-            currentPiece.renderDraggable(g, input.getMouseX() - dragOffsetX, input.getMouseY() - dragOffsetY, blockSize);
+            currentPiece.renderDraggable(g, input.getMouseX() - dragOffsetX, input.getMouseY() - dragOffsetY);
             g.clearClip();
         }
 
-        board.render(g, boardRect, blockSize, warping);
+        board.render(g, boardRect, warping);
     }
 
     @Override
     public void init(GameContainer gc) throws SlickException {
-        float boardHeight = gc.getHeight() - BOARD_MARGIN * 2;
-        blockSize = boardHeight / BOARD_HEIGHT;
-        boardRect = new Rectangle(BOARD_MARGIN, BOARD_MARGIN, blockSize * BOARD_WIDTH, boardHeight);
+        int boardHeight = gc.getHeight() - BOARD_MARGIN * 2;
+        int blockSize = boardHeight / BOARD_HEIGHT;
+        boardHeight = blockSize * BOARD_HEIGHT;
+        float actualYMargin = (gc.getHeight() - boardHeight) / 2.0f;
+        boardRect = new Rectangle(BOARD_MARGIN, actualYMargin, blockSize * BOARD_WIDTH, boardHeight);
+        blockRenderer = new BlockRenderer(boardRect, blockSize);
 
-        msTillNextStep = SECONDS_PER_STEP * 1000;
+        board = new Board(BOARD_WIDTH, BOARD_HEIGHT, blockRenderer);
 
-        board = new Board(BOARD_WIDTH, BOARD_HEIGHT);
+        Piece.createPieces(blockRenderer);
         currentPiece = Piece.getRandomPiece();
 
         Input input = gc.getInput();
         input.enableKeyRepeat();
         input.addMouseListener(this);
+
+        msTillNextStep = SECONDS_PER_STEP * 1000;
     }
 
     void toggleWarping() {
@@ -149,14 +151,6 @@ public class Warptris extends BasicGame implements MouseListener {
         return warping;
     }
 
-    int blockXFromPixel(int pixelX) {
-        return (int) ((pixelX - boardRect.getX()) / blockSize);
-    }
-
-    int blockYFromPixel(int pixelY) {
-        return (int) ((pixelY - boardRect.getY()) / blockSize);
-    }
-
     @Override
     public void mousePressed(int button, int x, int y) {
         if (button != 0) {
@@ -164,15 +158,14 @@ public class Warptris extends BasicGame implements MouseListener {
         }
 
         if (boardRect.contains(x, y)) {
-            int blockX = blockXFromPixel(x);
-            int blockY = blockYFromPixel(y);
+            int blockX = blockRenderer.getBlockX(x);
+            int blockY = blockRenderer.getBlockX(y);
             if (!currentPiece.contains(blockX, blockY)) {
                 return;
             }
 
-            dragOffsetX = (int) (x - (blockX * blockSize + boardRect.getX()));
-            dragOffsetY = (int) (y - (blockY * blockSize + boardRect.getY()));
-
+            dragOffsetX = x - blockRenderer.getX(blockX);
+            dragOffsetY = y - blockRenderer.getY(blockY);
             currentPiece.startDrag(blockX, blockY);
         }
     }
@@ -180,8 +173,10 @@ public class Warptris extends BasicGame implements MouseListener {
     @Override
     public void mouseReleased(int button, int x, int y) {
         if (button == 0) {
-            if (boardRect.contains(x, y)) {
-                if (currentPiece.stopDrag(blockXFromPixel(x), blockYFromPixel(y))) {
+            int blockX = blockRenderer.getBlockX(x);
+            int blockY = blockRenderer.getBlockX(y);
+            if (board.contains(blockX, blockY)) {
+                if (currentPiece.stopDrag(blockX, blockY)) {
                     currentPiece.warped = true;
                     warping = false;
                     board.mutate();

@@ -2,7 +2,8 @@ package com.bitspatter;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
-import org.newdawn.slick.geom.Rectangle;
+
+import com.bitspatter.renderer.BlockRenderer;
 
 public class BoardMutation {
     final int MUTATION_DURATION = 400;
@@ -11,9 +12,11 @@ public class BoardMutation {
     public int fromX, toX;
     public Color color;
 
+    BlockRenderer renderer;
     int remainingDuration = MUTATION_DURATION;
 
-    public BoardMutation(int y, int fromX, int toX, Color color) {
+    public BoardMutation(BlockRenderer renderer, int y, int fromX, int toX, Color color) {
+        this.renderer = renderer;
         this.y = y;
         this.fromX = fromX;
         this.toX = toX;
@@ -25,10 +28,9 @@ public class BoardMutation {
         return (remainingDuration > 0);
     }
 
-    public void render(Graphics g, Rectangle rect, float blockSize) {
+    public void render(Graphics g) {
         float scale = 1.0f - Math.max(0.0f, remainingDuration / (float) MUTATION_DURATION);
         float x = fromX + (toX - fromX) * scale;
-        g.setColor(color);
-        g.fillRect(rect.getX() + x * blockSize, rect.getY() + y * blockSize, blockSize, blockSize);
+        renderer.renderAtPixel(g, renderer.getX(x), renderer.getY(y), color);
     }
 }

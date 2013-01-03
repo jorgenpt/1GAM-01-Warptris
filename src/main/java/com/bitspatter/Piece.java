@@ -6,21 +6,24 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
 
+import com.bitspatter.renderer.BlockRenderer;
+
 public class Piece implements Cloneable {
     public static Piece[] pieces;
 
-    public int x, y;
-    public boolean[][] blocks;
+    public BlockRenderer renderer;
     public Color color;
+    public boolean[][] blocks;
+    public int x, y;
 
     // True if this piece has been mutated so far.
     public boolean warped = false;
 
-    public Piece(Color color, boolean[][] blocks) throws SlickException {
-        this.x = 0;
-        this.y = 0;
+    public Piece(BlockRenderer renderer, Color color, boolean[][] blocks) throws SlickException {
+        this.renderer = renderer;
         this.color = color;
         this.blocks = blocks;
+        this.x = this.y = 0;
     }
 
     boolean shouldRender(int x, int y) {
@@ -31,52 +34,49 @@ public class Piece implements Cloneable {
         return blocks[y][x];
     }
 
-    public void render(Graphics g, float blockSize) {
-        g.setColor(color);
+    public void render(Graphics g) {
         for (int y = 0; y < blocks.length; ++y) {
             for (int x = 0; x < blocks[y].length; ++x) {
                 if (shouldRender(x, y)) {
-                    g.fillRect(x * blockSize, y * blockSize, blockSize, blockSize);
+                    renderer.render(g, this.x + x, this.y + y, color);
                 }
             }
         }
     }
 
-    public void renderDraggable(Graphics g, float x, float y, float blockSize) {
+    public void renderDraggable(Graphics g, int x, int y) {
         if (dragging) {
-            g.setColor(color);
-            g.fillRect(x, y, blockSize, blockSize);
+            renderer.renderAtPixel(g, x, y, color);
         }
     }
 
-    public static void createPieces() throws SlickException {
+    public static void createPieces(BlockRenderer renderer) throws SlickException {
         pieces = new Piece[] {
                         // I piece
-                        new Piece(Color.cyan, new boolean[][] { { true, true, true, true } }),
+                        new Piece(renderer, Color.cyan, new boolean[][] { { true, true, true, true } }),
                         // O piece
-                        new Piece(Color.yellow, new boolean[][] { { true, true }, { true, true } }),
+                        new Piece(renderer, Color.yellow, new boolean[][] { { true, true }, { true, true } }),
                         // T piece
-                        new Piece(Color.decode("#9900CC"), new boolean[][] { { false, true, false },
+                        new Piece(renderer, Color.decode("#9900CC"), new boolean[][] { { false, true, false },
                                         { true, true, true } }),
                         // S piece
-                        new Piece(Color.green, new boolean[][] { { false, true, true }, { true, true, false } }),
+                        new Piece(renderer, Color.green,
+                                        new boolean[][] { { false, true, true }, { true, true, false } }),
                         // Z piece
-                        new Piece(Color.red, new boolean[][] { { true, true, false }, { false, true, true } }),
+                        new Piece(renderer, Color.red, new boolean[][] { { true, true, false }, { false, true, true } }),
                         // L piece
-                        new Piece(Color.orange, new boolean[][] { { true, false }, { true, false }, { true, true } }),
+                        new Piece(renderer, Color.orange, new boolean[][] { { true, false }, { true, false },
+                                        { true, true } }),
                         // J piece
-                        new Piece(Color.blue, new boolean[][] { { true, false, false }, { true, true, true } }) };
+                        new Piece(renderer, Color.blue,
+                                        new boolean[][] { { true, false, false }, { true, true, true } }) };
     }
 
     static Random random = new Random();
 
     public static Piece getRandomPiece() {
         if (pieces == null) {
-            try {
-                createPieces();
-            } catch (SlickException se) {
-                return null;
-            }
+            return null;
         }
 
         Piece piece = pieces[random.nextInt(pieces.length)];
@@ -99,7 +99,7 @@ public class Piece implements Cloneable {
             }
         }
 
-        Piece newPiece = new Piece(color, newBlocks);
+        Piece newPiece = new Piece(renderer, color, newBlocks);
         newPiece.x = x;
         newPiece.y = y;
         return newPiece;

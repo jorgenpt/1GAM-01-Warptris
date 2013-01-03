@@ -8,15 +8,19 @@ import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Rectangle;
 
+import com.bitspatter.renderer.BlockRenderer;
+
 public class Board {
     int width, height;
     Color[][] finalizedBlocks;
     Image warpCloud;
+    BlockRenderer blockRenderer;
     BoardMutation pendingMutation;
 
-    public Board(int width, int height) {
+    public Board(int width, int height, BlockRenderer blockRenderer) {
         this.width = width;
         this.height = height;
+        this.blockRenderer = blockRenderer;
         this.finalizedBlocks = new Color[height][width];
         try {
             this.warpCloud = new Image("resources/warp_cloud.jpeg");
@@ -24,7 +28,7 @@ public class Board {
         }
     }
 
-    public void render(Graphics g, Rectangle rect, float blockSize, boolean warping) {
+    public void render(Graphics g, Rectangle rect, boolean warping) {
         g.setColor(Color.white);
         g.drawRect(rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight());
 
@@ -37,13 +41,12 @@ public class Board {
                     continue;
                 }
 
-                g.setColor(finalizedBlocks[y][x]);
-                g.fillRect(rect.getX() + x * blockSize, rect.getY() + y * blockSize, blockSize, blockSize);
+                blockRenderer.render(g, x, y, finalizedBlocks[y][x]);
             }
         }
 
         if (pendingMutation != null) {
-            pendingMutation.render(g, rect, blockSize);
+            pendingMutation.render(g);
         }
     }
 
@@ -222,7 +225,7 @@ public class Board {
 
     public boolean swap(int x, int y, int newX) {
         if (newX < width && newX >= 0 && finalizedBlocks[y][newX] == null) {
-            pendingMutation = new BoardMutation(y, x, newX, finalizedBlocks[y][x]);
+            pendingMutation = new BoardMutation(blockRenderer, y, x, newX, finalizedBlocks[y][x]);
             finalizedBlocks[y][x] = null;
             // We use black so that it doesn't show anything, but so that it's still picked up by the collision
             // detection.
@@ -231,5 +234,17 @@ public class Board {
         }
 
         return false;
+    }
+
+    public boolean contains(int blockX, int blockY) {
+        if (blockX < 0 || blockX >= width) {
+            return false;
+        }
+
+        if (blockY < 0 || blockY >= height) {
+            return false;
+        }
+
+        return true;
     }
 }
