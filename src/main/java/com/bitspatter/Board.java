@@ -107,7 +107,7 @@ public class Board {
 
             if (wholeRow) {
                 clearRow(blockY);
-                y -= 1;
+                y++;
             }
         }
 
