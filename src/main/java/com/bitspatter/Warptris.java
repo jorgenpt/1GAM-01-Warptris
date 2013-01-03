@@ -86,6 +86,8 @@ public class Warptris extends BasicGame implements MouseListener {
             return;
         }
 
+        board.update(delta);
+
         if (input.isKeyPressed(Input.KEY_LEFT)) {
             movePieceHorizontally(-1);
         } else if (input.isKeyPressed(Input.KEY_RIGHT)) {

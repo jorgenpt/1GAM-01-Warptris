@@ -12,6 +12,7 @@ public class Board {
     int width, height;
     Color[][] finalizedBlocks;
     Image warpCloud;
+    BoardMutation pendingMutation;
 
     public Board(int width, int height) {
         this.width = width;
@@ -40,6 +41,10 @@ public class Board {
                 g.fillRect(rect.getX() + x * blockSize, rect.getY() + y * blockSize, blockSize, blockSize);
             }
         }
+
+        if (pendingMutation != null) {
+            pendingMutation.render(g, rect, blockSize);
+        }
     }
 
     public void renderWarping(Graphics g, Rectangle rect) {
@@ -50,6 +55,15 @@ public class Board {
             }
         }
         g.clearClip();
+    }
+
+    public void update(int delta) {
+        if (pendingMutation != null) {
+            if (!pendingMutation.animate(delta)) {
+                finalizedBlocks[pendingMutation.y][pendingMutation.toX] = pendingMutation.color;
+                pendingMutation = null;
+            }
+        }
     }
 
     public boolean pieceLanded(Piece piece) {
@@ -208,8 +222,11 @@ public class Board {
 
     public boolean swap(int x, int y, int newX) {
         if (newX < width && newX >= 0 && finalizedBlocks[y][newX] == null) {
-            finalizedBlocks[y][newX] = finalizedBlocks[y][x];
+            pendingMutation = new BoardMutation(y, x, newX, finalizedBlocks[y][x]);
             finalizedBlocks[y][x] = null;
+            // We use black so that it doesn't show anything, but so that it's still picked up by the collision
+            // detection.
+            finalizedBlocks[y][newX] = Color.black;
             return true;
         }
 
