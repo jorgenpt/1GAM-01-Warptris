@@ -48,26 +48,35 @@ public class Warptris extends BasicGame implements MouseListener {
 
     @Override
     public void init(GameContainer gc) throws SlickException {
-        int boardHeight = gc.getHeight() - BOARD_MARGIN * 2;
-        int blockSize = boardHeight / BOARD_HEIGHT;
-        boardHeight = blockSize * BOARD_HEIGHT;
-        float actualYMargin = (gc.getHeight() - boardHeight) / 2.0f;
-        boardRect = new Rectangle(BOARD_MARGIN, actualYMargin, blockSize * BOARD_WIDTH, boardHeight);
-        blockRenderer = new BlockRenderer(boardRect, blockSize);
+        initializeRenderer(gc);
 
         board = new Board(BOARD_WIDTH, BOARD_HEIGHT, blockRenderer);
 
         Piece.createPieces(blockRenderer);
         currentPiece = Piece.getRandomPiece();
 
-        Input input = gc.getInput();
-        input.enableKeyRepeat();
-        input.addMouseListener(this);
+        initializeInput(gc);
 
         msTillNextStep = SECONDS_PER_STEP * 1000;
     }
 
-    void toggleWarping() {
+    private void initializeInput(GameContainer gc) {
+        Input input = gc.getInput();
+        input.enableKeyRepeat();
+        input.addMouseListener(this);
+    }
+
+    private void initializeRenderer(GameContainer gc) {
+        int boardHeight = gc.getHeight() - BOARD_MARGIN * 2;
+        int blockSize = boardHeight / BOARD_HEIGHT;
+        boardHeight = blockSize * BOARD_HEIGHT;
+        float actualYMargin = (gc.getHeight() - boardHeight) / 2.0f;
+
+        boardRect = new Rectangle(BOARD_MARGIN, actualYMargin, blockSize * BOARD_WIDTH, boardHeight);
+        blockRenderer = new BlockRenderer(boardRect, blockSize);
+    }
+
+    private void toggleWarping() {
         if (!warping && currentPiece.warped)
             return;
 
@@ -157,17 +166,15 @@ public class Warptris extends BasicGame implements MouseListener {
             return;
         }
 
-        if (boardRect.contains(x, y)) {
-            int blockX = blockRenderer.getBlockX(x);
-            int blockY = blockRenderer.getBlockX(y);
-            if (!currentPiece.contains(blockX, blockY)) {
-                return;
-            }
-
-            dragOffsetX = x - blockRenderer.getX(blockX);
-            dragOffsetY = y - blockRenderer.getY(blockY);
-            currentPiece.startDrag(blockX, blockY);
+        int blockX = blockRenderer.getBlockX(x);
+        int blockY = blockRenderer.getBlockX(y);
+        if (!currentPiece.contains(blockX, blockY)) {
+            return;
         }
+
+        dragOffsetX = x - blockRenderer.getX(blockX);
+        dragOffsetY = y - blockRenderer.getY(blockY);
+        currentPiece.startDrag(blockX, blockY);
     }
 
     @Override
