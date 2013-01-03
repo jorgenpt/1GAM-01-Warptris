@@ -51,13 +51,20 @@ public class Piece implements Cloneable {
 
     public static void createPieces() throws SlickException {
         pieces = new Piece[] {
-                        new Piece(Color.orange, new boolean[][] { { true, false }, { true, false }, { true, true } }),
+                        // I piece
                         new Piece(Color.cyan, new boolean[][] { { true, true, true, true } }),
+                        // O piece
                         new Piece(Color.yellow, new boolean[][] { { true, true }, { true, true } }),
+                        // T piece
                         new Piece(Color.decode("#9900CC"), new boolean[][] { { false, true, false },
                                         { true, true, true } }),
+                        // S piece
                         new Piece(Color.green, new boolean[][] { { false, true, true }, { true, true, false } }),
+                        // Z piece
                         new Piece(Color.red, new boolean[][] { { true, true, false }, { false, true, true } }),
+                        // L piece
+                        new Piece(Color.orange, new boolean[][] { { true, false }, { true, false }, { true, true } }),
+                        // J piece
                         new Piece(Color.blue, new boolean[][] { { true, false, false }, { true, true, true } }) };
     }
 
