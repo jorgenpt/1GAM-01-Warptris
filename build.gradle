@@ -1,0 +1,41 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'eclipse'
+
+repositories {
+    mavenCentral()
+    flatDir {
+        dirs 'libs'
+    }
+}
+
+
+dependencies {
+    compile 'org.lwjgl.lwjgl:lwjgl:2.8.5'
+    compile 'org.newdawn.slick:slick'
+}
+
+task natives {
+    ext.platforms = ['windows', 'linux', 'osx']
+    description "Copies native libraries to an appropriate directory."
+}
+
+natives.platforms.each { platform ->
+    natives.dependsOn "${platform}Natives"
+    task "${platform}Natives" {
+        ext.outputDir = "$buildDir/natives/$platform"
+        inputs.files(configurations.compile)
+        outputs.dir(ext.outputDir)
+        doLast {
+            copy {
+                def artifacts = configurations.compile.resolvedConfiguration.resolvedArtifacts
+                    .findAll { it.classifier == "natives-$platform" }
+                artifacts.each { 
+                    from zipTree(it.file)
+                }            
+                into ext.outputDir
+            }
+        }
+    }
+}
+
