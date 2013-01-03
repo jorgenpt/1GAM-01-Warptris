@@ -3,7 +3,6 @@ package com.bitspatter;
 import java.util.Random;
 
 import org.newdawn.slick.Color;
-import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
 
@@ -13,14 +12,15 @@ public class Piece implements Cloneable {
     public int x, y;
     public boolean[][] blocks;
     public Color color;
-    public boolean warping;
+
+    // True if this piece has been mutated so far.
+    public boolean warped = false;
 
     public Piece(Color color, boolean[][] blocks) throws SlickException {
         this.x = 0;
         this.y = 0;
         this.color = color;
         this.blocks = blocks;
-        this.warping = false;
     }
 
     boolean shouldRender(int x, int y) {
@@ -98,13 +98,6 @@ public class Piece implements Cloneable {
         return newPiece;
     }
 
-    public void enableWarping(GameContainer gc, boolean warping) {
-        this.warping = warping;
-        if (!warping) {
-            stopDrag();
-        }
-    }
-
     public int getMaxX() {
         return getWidth() + x;
     }
@@ -157,9 +150,9 @@ public class Piece implements Cloneable {
         return newBlocks;
     }
 
-    public void stopDrag(int blockX, int blockY) {
+    public boolean stopDrag(int blockX, int blockY) {
         if (!dragging) {
-            return;
+            return false;
         }
 
         stopDrag();
@@ -171,17 +164,17 @@ public class Piece implements Cloneable {
         if (contains(blockX, blockY)) {
             // Was it dropped on top of an occupied space.
             if (blocks[localY][localX]) {
-                return;
+                return false;
             }
 
             blocks[localY][localX] = true;
             blocks[draggingY][draggingX] = false;
-            return;
+            return false;
         }
 
         // It has to be within one block of a current block.
         if (!hasAnyNonDraggedNeighbor(localX, localY)) {
-            return;
+            return false;
         }
 
         blocks[draggingY][draggingX] = false;
@@ -203,11 +196,12 @@ public class Piece implements Cloneable {
             growY = 1;
         }
 
-        // System.out.println("")
         blocks = growBlocks(offsetX, offsetY, growX, growY);
         blocks[localY + offsetY][localX + offsetX] = true;
         x -= offsetX;
         y -= offsetY;
+
+        return true;
     }
 
     public boolean hasAnyNonDraggedNeighbor(int localX, int localY) {
@@ -218,7 +212,7 @@ public class Piece implements Cloneable {
                 if (neighborY == draggingY && neighborX == draggingX)
                     continue;
 
-                if (containsLocal(neighborY, neighborX) && blocks[neighborY][neighborX]) {
+                if (containsLocal(neighborX, neighborY) && blocks[neighborY][neighborX]) {
                     return true;
                 }
             }

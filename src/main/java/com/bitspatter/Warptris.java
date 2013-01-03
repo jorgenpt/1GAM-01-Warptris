@@ -31,16 +31,22 @@ public class Warptris extends BasicGame implements MouseListener {
 
     @Override
     public void render(GameContainer gc, Graphics g) throws SlickException {
+        if (warping) {
+            board.renderWarping(g, boardRect);
+        }
+
         g.translate(boardRect.getX() + currentPiece.x * blockSize, boardRect.getY() + currentPiece.y * blockSize);
         currentPiece.render(g, blockSize);
         g.resetTransform();
 
         if (warping) {
             Input input = gc.getInput();
+            g.setClip(boardRect);
             currentPiece.renderDraggable(g, input.getMouseX() - dragOffsetX, input.getMouseY() - dragOffsetY, blockSize);
+            g.clearClip();
         }
 
-        board.render(g, boardRect, blockSize);
+        board.render(g, boardRect, blockSize, warping);
     }
 
     @Override
@@ -59,13 +65,21 @@ public class Warptris extends BasicGame implements MouseListener {
         input.addMouseListener(this);
     }
 
+    void toggleWarping() {
+        if (!warping && currentPiece.warped)
+            return;
+
+        warping = !warping;
+        if (!warping) {
+            currentPiece.stopDrag();
+        }
+    }
+
     @Override
     public void update(GameContainer gc, int delta) throws SlickException {
         Input input = gc.getInput();
-
         if (input.isKeyPressed(Input.KEY_SPACE)) {
-            warping = !warping;
-            currentPiece.enableWarping(gc, warping);
+            toggleWarping();
         }
 
         if (warping) {
@@ -165,7 +179,10 @@ public class Warptris extends BasicGame implements MouseListener {
     public void mouseReleased(int button, int x, int y) {
         if (button == 0) {
             if (boardRect.contains(x, y)) {
-                currentPiece.stopDrag(blockXFromPixel(x), blockYFromPixel(y));
+                if (currentPiece.stopDrag(blockXFromPixel(x), blockYFromPixel(y))) {
+                    currentPiece.warped = true;
+                    warping = false;
+                }
             } else {
                 currentPiece.stopDrag();
             }

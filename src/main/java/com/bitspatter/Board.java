@@ -2,21 +2,31 @@ package com.bitspatter;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Image;
+import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Rectangle;
 
 public class Board {
     int width, height;
     Color[][] finalizedBlocks;
+    Image warpCloud;
 
     public Board(int width, int height) {
         this.width = width;
         this.height = height;
         this.finalizedBlocks = new Color[height][width];
+        try {
+            this.warpCloud = new Image("resources/warp_cloud.jpeg");
+        } catch (SlickException se) {
+        }
     }
 
-    public void render(Graphics g, Rectangle rect, float blockSize) {
+    public void render(Graphics g, Rectangle rect, float blockSize, boolean warping) {
         g.setColor(Color.white);
         g.drawRect(rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight());
+
+        if (warping)
+            return;
 
         for (int y = 0; y < finalizedBlocks.length; ++y) {
             for (int x = 0; x < finalizedBlocks[y].length; ++x) {
@@ -28,6 +38,16 @@ public class Board {
                 g.fillRect(rect.getX() + x * blockSize, rect.getY() + y * blockSize, blockSize, blockSize);
             }
         }
+    }
+
+    public void renderWarping(Graphics g, Rectangle rect) {
+        g.setClip(rect);
+        for (float x = rect.getX(); x <= rect.getWidth(); x += warpCloud.getWidth()) {
+            for (float y = rect.getY(); y <= rect.getHeight(); y += warpCloud.getHeight()) {
+                g.drawImage(warpCloud, x, y);
+            }
+        }
+        g.clearClip();
     }
 
     public boolean pieceLanded(Piece piece) {
