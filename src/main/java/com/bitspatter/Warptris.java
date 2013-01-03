@@ -94,7 +94,7 @@ public class Warptris extends BasicGame {
     }
 
     private Piece generateNewPiece() throws SlickException {
-        return Piece.createL();
+        return Piece.getRandomPiece();
     }
 
     public Warptris() {

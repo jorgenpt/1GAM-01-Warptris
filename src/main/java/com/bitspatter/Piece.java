@@ -1,10 +1,14 @@
 package com.bitspatter;
 
+import java.util.Random;
+
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
 
-public class Piece {
+public class Piece implements Cloneable {
+    public static Piece[] pieces;
+
     public int x, y;
     public boolean[][] blocks;
     public Color color;
@@ -27,8 +31,35 @@ public class Piece {
         }
     }
 
-    public static Piece createL() throws SlickException {
-        return new Piece(Color.orange, new boolean[][] { { true, false }, { true, false }, { true, true } });
+    public static void createPieces() throws SlickException {
+        pieces = new Piece[] {
+                        new Piece(Color.orange, new boolean[][] { { true, false }, { true, false }, { true, true } }),
+                        new Piece(Color.cyan, new boolean[][] { { true, true, true, true } }),
+                        new Piece(Color.yellow, new boolean[][] { { true, true }, { true, true } }),
+                        new Piece(Color.decode("#9900CC"), new boolean[][] { { false, true, false },
+                                        { true, true, true } }),
+                        new Piece(Color.green, new boolean[][] { { false, true, true }, { true, true, false } }),
+                        new Piece(Color.red, new boolean[][] { { true, true, false }, { false, true, true } }),
+                        new Piece(Color.blue, new boolean[][] { { true, false, false }, { true, true, true } }) };
+    }
+
+    static Random random = new Random();
+
+    public static Piece getRandomPiece() {
+        if (pieces == null) {
+            try {
+                createPieces();
+            } catch (SlickException se) {
+                return null;
+            }
+        }
+
+        Piece piece = pieces[random.nextInt(pieces.length)];
+        try {
+            return (Piece) piece.clone();
+        } catch (CloneNotSupportedException cnse) {
+            return null;
+        }
     }
 
     public Piece rotated(boolean clockwise) throws SlickException {
