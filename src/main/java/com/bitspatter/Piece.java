@@ -174,17 +174,16 @@ public class Piece implements Cloneable {
                 return false;
             }
 
+            blocks = growBlocks(0, 0, 0, 0);
             blocks[localY][localX] = true;
             blocks[draggingY][draggingX] = false;
-            return false;
+            return true;
         }
 
         // It has to be within one block of a current block.
         if (!hasAnyNonDraggedNeighbor(localX, localY)) {
             return false;
         }
-
-        blocks[draggingY][draggingX] = false;
 
         int growX = 0, offsetX = 0;
         int growY = 0, offsetY = 0;
@@ -204,6 +203,7 @@ public class Piece implements Cloneable {
         }
 
         blocks = growBlocks(offsetX, offsetY, growX, growY);
+        blocks[draggingY + offsetY][draggingX + offsetX] = false;
         blocks[localY + offsetY][localX + offsetX] = true;
         x -= offsetX;
         y -= offsetY;
