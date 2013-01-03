@@ -16,22 +16,25 @@ public class Warptris extends BasicGame {
 
     @Override
     public void render(GameContainer gc, Graphics g) throws SlickException {
-        board.render(g, boardRect, blockSize);
         g.translate(boardRect.getX() + currentPiece.x * blockSize, boardRect.getY() + currentPiece.y * blockSize);
         currentPiece.render(g, blockSize);
+
+        g.resetTransform();
+        board.render(g, boardRect, blockSize);
     }
 
     @Override
     public void init(GameContainer gc) throws SlickException {
         float boardHeight = gc.getHeight() - BOARD_MARGIN * 2;
-
         blockSize = boardHeight / BOARD_HEIGHT;
         boardRect = new Rectangle(BOARD_MARGIN, BOARD_MARGIN, blockSize * BOARD_WIDTH, boardHeight);
 
-        board = new Board(BOARD_WIDTH, BOARD_HEIGHT);
-        currentPiece = generateNewPiece();
-
         msTillNextStep = SECONDS_PER_STEP * 1000;
+
+        board = new Board(BOARD_WIDTH, BOARD_HEIGHT);
+        currentPiece = Piece.getRandomPiece();
+
+        gc.getInput().enableKeyRepeat();
     }
 
     @Override
@@ -86,15 +89,11 @@ public class Warptris extends BasicGame {
                 System.exit(0);
             }
 
-            currentPiece = generateNewPiece();
+            currentPiece = Piece.getRandomPiece();
             return true;
         }
 
         return false;
-    }
-
-    private Piece generateNewPiece() throws SlickException {
-        return Piece.getRandomPiece();
     }
 
     public Warptris() {
