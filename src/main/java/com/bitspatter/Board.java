@@ -69,22 +69,18 @@ public class Board {
         }
     }
 
+    private boolean hasBlock(int blockX, int blockY) {
+        return !contains(blockX, blockY) || finalizedBlocks[blockY][blockX] != null;
+    }
+
     public boolean pieceLanded(Piece piece) {
-        for (int y = 0; y < piece.blocks.length; ++y) {
-            for (int x = 0; x < piece.blocks[y].length; ++x) {
+        for (int y = 0; y < piece.getHeight(); ++y) {
+            for (int x = 0; x < piece.getWidth(); ++x) {
                 if (!piece.blocks[y][x]) {
                     continue;
                 }
 
-                if (piece.topLeftX + x >= width) {
-                    return true;
-                }
-
-                if (piece.topLeftY + y >= height) {
-                    return true;
-                }
-
-                if (finalizedBlocks[piece.topLeftY + y][piece.topLeftX + x] != null) {
+                if (hasBlock(piece.topLeftX + x, piece.topLeftY + y)) {
                     return true;
                 }
             }
@@ -93,7 +89,7 @@ public class Board {
         return false;
     }
 
-    public boolean finalizePiece(Piece piece) {
+    private boolean copyPiece(Piece piece) {
         boolean gameEnded = false;
         for (int y = 0; y < piece.getHeight(); ++y) {
             for (int x = 0; x < piece.getWidth(); ++x) {
@@ -108,27 +104,36 @@ public class Board {
             }
         }
 
+        return gameEnded;
+    }
+
+    public boolean finalizePiece(Piece piece) {
+        boolean gameEnded = copyPiece(piece);
+        clearCompletedRows(piece);
+        return gameEnded;
+    }
+
+    private void clearCompletedRows(Piece piece) {
         for (int y = piece.getHeight() - 1; y >= 0; --y) {
             int blockY = piece.topLeftY + y;
             if (blockY >= height) {
                 continue;
             }
 
-            boolean wholeRow = true;
-            for (int x = 0; x < width; ++x) {
-                if (finalizedBlocks[blockY][x] == null) {
-                    wholeRow = false;
-                    break;
-                }
-            }
-
-            if (wholeRow) {
+            if (isRowCompleted(blockY)) {
                 clearRow(blockY);
                 y++;
             }
         }
+    }
 
-        return gameEnded;
+    boolean isRowCompleted(int y) {
+        for (int x = 0; x < width; ++x) {
+            if (finalizedBlocks[y][x] == null) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private void clearRow(int row) {
@@ -137,6 +142,7 @@ public class Board {
                 finalizedBlocks[y][x] = finalizedBlocks[y - 1][x];
             }
         }
+
         for (int x = 0; x < width; ++x) {
             finalizedBlocks[0][x] = null;
         }
