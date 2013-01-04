@@ -4,8 +4,7 @@ import org.newdawn.slick.*;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.state.*;
 
-import com.bitspatter.Board;
-import com.bitspatter.Piece;
+import com.bitspatter.*;
 import com.bitspatter.renderers.BlockRenderer;
 
 public class PlayingState extends BasicGameState implements MouseListener {
@@ -26,7 +25,14 @@ public class PlayingState extends BasicGameState implements MouseListener {
     int msTillNextStep;
 
     // Whether or not we're currently in "warp" mode, i.e. game paused and allowing player to move blocks.
-    boolean warping = false;
+    private enum PlayState {
+        Playing,
+        Paused,
+        Warping,
+        Ended
+    }
+
+    PlayState state = PlayState.Playing;
 
     // This is the delta between the mouse pointer and the top left of the currently dragged block, to make dragging
     // feel natural.
@@ -39,6 +45,7 @@ public class PlayingState extends BasicGameState implements MouseListener {
 
     @Override
     public void render(GameContainer gc, StateBasedGame game, Graphics g) throws SlickException {
+        boolean warping = (state == PlayState.Warping);
         if (warping) {
             board.renderWarping(g, boardRenderArea);
         }
@@ -86,11 +93,13 @@ public class PlayingState extends BasicGameState implements MouseListener {
     }
 
     private void toggleWarping() {
-        if (!warping && currentPiece.warped)
-            return;
-
-        warping = !warping;
-        if (!warping) {
+        if (state == PlayState.Playing) {
+            // You can only warp each piece once.
+            if (currentPiece.warped)
+                return;
+            state = PlayState.Warping;
+        } else if (state == PlayState.Warping) {
+            state = PlayState.Playing;
             currentPiece.stopDrag();
         }
     }
@@ -102,7 +111,7 @@ public class PlayingState extends BasicGameState implements MouseListener {
             toggleWarping();
         }
 
-        if (warping) {
+        if (state != PlayState.Playing) {
             return;
         }
 
@@ -166,7 +175,7 @@ public class PlayingState extends BasicGameState implements MouseListener {
 
     @Override
     public boolean isAcceptingInput() {
-        return warping;
+        return (state == PlayState.Warping);
     }
 
     @Override
@@ -194,7 +203,7 @@ public class PlayingState extends BasicGameState implements MouseListener {
             if (board.contains(blockX, blockY)) {
                 if (currentPiece.stopDrag(blockX, blockY)) {
                     currentPiece.warped = true;
-                    warping = false;
+                    state = PlayState.Playing;
                     board.mutate();
                 }
             } else {
