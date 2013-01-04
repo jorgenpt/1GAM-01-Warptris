@@ -131,15 +131,15 @@ public class PlayingState extends BasicGameState implements MouseListener {
 
         if (input.isKeyPressed(Input.KEY_DOWN)) {
             msTillNextStep = SECONDS_PER_STEP * 1000;
-            lowerPiece();
+            lowerPiece(game);
         } else if (input.isKeyPressed(Input.KEY_UP)) {
-            while (!lowerPiece())
+            while (!lowerPiece(game))
                 ;
         } else {
             msTillNextStep -= delta;
             if (msTillNextStep < 0) {
                 msTillNextStep += SECONDS_PER_STEP * 1000;
-                lowerPiece();
+                lowerPiece(game);
             }
         }
     }
@@ -158,12 +158,13 @@ public class PlayingState extends BasicGameState implements MouseListener {
         }
     }
 
-    private boolean lowerPiece() throws SlickException {
+    private boolean lowerPiece(StateBasedGame game) throws SlickException {
         currentPiece.topLeftY++;
         if (board.pieceLanded(currentPiece)) {
             currentPiece.topLeftY--;
             if (board.finalizePiece(currentPiece)) {
-                System.exit(0);
+                // TODO: Switch 'state' so we'll show "game over", and then press a button to go to menu.
+                game.enterState(MenuState.STATE_ID);
             }
 
             currentPiece = Piece.getRandomPiece();
