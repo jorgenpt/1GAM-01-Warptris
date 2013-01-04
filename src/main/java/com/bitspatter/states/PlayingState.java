@@ -8,7 +8,7 @@ import com.bitspatter.*;
 import com.bitspatter.renderers.BlockRenderer;
 
 public class PlayingState extends BasicGameState implements MouseListener {
-    public final static int STATE_ID = 1;
+    public final static int STATE_ID = 2;
     final int SECONDS_PER_STEP = 1;
     final int BOARD_MARGIN = 10;
     final int BOARD_WIDTH = 10, BOARD_HEIGHT = 22;

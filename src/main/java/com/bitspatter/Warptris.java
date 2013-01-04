@@ -1,11 +1,9 @@
 package com.bitspatter;
 
-import org.newdawn.slick.AppGameContainer;
-import org.newdawn.slick.GameContainer;
-import org.newdawn.slick.SlickException;
+import org.newdawn.slick.*;
 import org.newdawn.slick.state.StateBasedGame;
 
-import com.bitspatter.states.PlayingState;
+import com.bitspatter.states.*;
 
 public class Warptris extends StateBasedGame {
     public Warptris() {
@@ -14,6 +12,7 @@ public class Warptris extends StateBasedGame {
 
     @Override
     public void initStatesList(GameContainer container) throws SlickException {
+        addState(new MenuState());
         addState(new PlayingState());
     }
 
