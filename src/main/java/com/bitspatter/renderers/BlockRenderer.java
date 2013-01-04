@@ -1,4 +1,4 @@
-package com.bitspatter.renderer;
+package com.bitspatter.renderers;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;

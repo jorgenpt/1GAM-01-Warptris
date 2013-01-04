@@ -6,7 +6,7 @@ import org.newdawn.slick.state.*;
 
 import com.bitspatter.Board;
 import com.bitspatter.Piece;
-import com.bitspatter.renderer.BlockRenderer;
+import com.bitspatter.renderers.BlockRenderer;
 
 public class PlayingState extends BasicGameState implements MouseListener {
     public final static int STATE_ID = 1;

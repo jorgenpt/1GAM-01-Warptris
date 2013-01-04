@@ -8,7 +8,7 @@ import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Rectangle;
 
-import com.bitspatter.renderer.BlockRenderer;
+import com.bitspatter.renderers.BlockRenderer;
 
 public class Board {
     int width, height;

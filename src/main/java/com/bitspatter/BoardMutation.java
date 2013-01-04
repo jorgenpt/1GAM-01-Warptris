@@ -3,7 +3,7 @@ package com.bitspatter;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 
-import com.bitspatter.renderer.BlockRenderer;
+import com.bitspatter.renderers.BlockRenderer;
 
 public class BoardMutation {
     final int MUTATION_DURATION = 400;

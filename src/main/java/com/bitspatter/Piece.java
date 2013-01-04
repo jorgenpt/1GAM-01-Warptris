@@ -6,7 +6,7 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
 
-import com.bitspatter.renderer.BlockRenderer;
+import com.bitspatter.renderers.BlockRenderer;
 
 public class Piece implements Cloneable {
     public static Piece[] pieces;
