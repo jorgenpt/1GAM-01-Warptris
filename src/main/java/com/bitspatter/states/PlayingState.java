@@ -65,14 +65,14 @@ public class PlayingState extends BasicGameState implements MouseListener {
     @Override
     public void init(GameContainer gc, StateBasedGame game) throws SlickException {
         initializeRenderer(gc);
-
-        board = new Board(BOARD_WIDTH, BOARD_HEIGHT, blockRenderer);
-
         Piece.createPieces(blockRenderer);
-        currentPiece = Piece.getRandomPiece();
-
         initializeInput(gc);
+    }
 
+    @Override
+    public void enter(GameContainer container, StateBasedGame game) throws SlickException {
+        board = new Board(BOARD_WIDTH, BOARD_HEIGHT, blockRenderer);
+        currentPiece = Piece.getRandomPiece();
         msTillNextStep = SECONDS_PER_STEP * 1000;
     }
 
