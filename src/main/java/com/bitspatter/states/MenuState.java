@@ -15,8 +15,8 @@ public class MenuState extends BasicGameState {
         public MenuAction action;
 
         public MenuItem(String file, MenuAction action) throws SlickException {
-            this.image = new Image("resources/" + file + "_normal.png");
-            this.selectedImage = new Image("resources/" + file + "_selected.png");
+            this.image = new Image("menu_" + file + "_normal.png");
+            this.selectedImage = new Image("menu_" + file + "_selected.png");
             this.action = action;
         }
     }
@@ -31,12 +31,12 @@ public class MenuState extends BasicGameState {
 
     @Override
     public void init(final GameContainer container, final StateBasedGame game) throws SlickException {
-        title = new Image("resources/menu_title.png");
-        menuItems = new MenuItem[] { new MenuItem("menu_start", new MenuAction() {
+        title = new Image("menu_title.png");
+        menuItems = new MenuItem[] { new MenuItem("start", new MenuAction() {
             public void onClick() {
                 game.enterState(PlayingState.STATE_ID, new FadeOutTransition(), new FadeInTransition());
             }
-        }), new MenuItem("menu_quit", new MenuAction() {
+        }), new MenuItem("quit", new MenuAction() {
             public void onClick() {
                 container.exit();
             }

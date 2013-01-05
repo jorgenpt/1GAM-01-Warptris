@@ -23,7 +23,7 @@ public class Board {
         this.blockRenderer = blockRenderer;
         this.finalizedBlocks = new Color[height][width];
         try {
-            this.warpCloud = new Image("resources/warp_cloud.jpeg");
+            this.warpCloud = new Image("warp_cloud.jpg");
         } catch (SlickException se) {
         }
     }
