@@ -9,7 +9,6 @@ repositories {
     }
 }
 
-
 dependencies {
     compile 'org.lwjgl.lwjgl:lwjgl:2.8.5'
     compile 'org.newdawn.slick:slick'
@@ -39,3 +38,6 @@ natives.platforms.each { platform ->
     }
 }
 
+jar {
+    manifest.attributes("Main-Class": "com.bitspatter.Warptris")
+}
