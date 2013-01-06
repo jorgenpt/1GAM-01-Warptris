@@ -1,21 +1,21 @@
-package com.bitspatter.renderers;
+package com.bitspatter;
 
 import org.newdawn.slick.*;
 
-import com.bitspatter.Piece;
+import com.bitspatter.renderers.BlockRenderer;
 
-public class NextPieceRenderer {
+public class NextPieceBox {
     BlockRenderer renderer;
     Image nextPieceImage;
     float marginX, marginY;
 
-    public NextPieceRenderer(BlockRenderer blockRenderer) {
+    public NextPieceBox(BlockRenderer blockRenderer) {
         this.renderer = blockRenderer;
     }
 
     public void setNextPiece(Piece nextPiece) throws SlickException {
-        int width = renderer.blockSize * nextPiece.getWidth();
-        int height = renderer.blockSize * nextPiece.getHeight();
+        int width = renderer.getBlockSize() * nextPiece.getWidth();
+        int height = renderer.getBlockSize() * nextPiece.getHeight();
         marginX = (getWidth() - width) / 2f;
         marginY = (getHeight() - height) / 2f;
 

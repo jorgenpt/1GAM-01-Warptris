@@ -11,7 +11,6 @@ import org.newdawn.slick.state.transition.*;
 import com.bitspatter.*;
 import com.bitspatter.Board.BoardListener;
 import com.bitspatter.renderers.BlockRenderer;
-import com.bitspatter.renderers.NextPieceRenderer;
 
 public class PlayingState extends BasicGameState implements MouseListener, BoardListener {
     public final static int STATE_ID = 2;
@@ -25,7 +24,7 @@ public class PlayingState extends BasicGameState implements MouseListener, Board
     Piece currentPiece, nextPiece;
 
     BlockRenderer blockRenderer;
-    NextPieceRenderer nextPieceRenderer;
+    NextPieceBox nextPieceBox;
     Rectangle boardRenderArea;
 
     Image instructions, warpingInstructions, gameOverImage;
@@ -97,8 +96,8 @@ public class PlayingState extends BasicGameState implements MouseListener, Board
         float rightPaneX = boardRenderArea.getMaxX() + 2 * BOARD_MARGIN;
         float rightPaneY = BOARD_MARGIN;
 
-        nextPieceRenderer.render(g, rightPaneX, rightPaneY);
-        rightPaneY += nextPieceRenderer.getHeight() + BOARD_MARGIN;
+        nextPieceBox.render(g, rightPaneX, rightPaneY);
+        rightPaneY += nextPieceBox.getHeight() + BOARD_MARGIN;
 
         score.render(g, rightPaneX, rightPaneY);
         rightPaneY += score.getHeight() + BOARD_MARGIN;
@@ -162,7 +161,7 @@ public class PlayingState extends BasicGameState implements MouseListener, Board
 
         boardRenderArea = new Rectangle(BOARD_MARGIN, BOARD_WIDTH, blockSize * BOARD_WIDTH, boardHeight);
         blockRenderer = new BlockRenderer(boardRenderArea, blockSize);
-        nextPieceRenderer = new NextPieceRenderer(new BlockRenderer(null, blockSize));
+        nextPieceBox = new NextPieceBox(new BlockRenderer(null, blockSize));
     }
 
     private void toggleWarping() {
@@ -230,7 +229,7 @@ public class PlayingState extends BasicGameState implements MouseListener, Board
     private Piece getNextPiece() throws SlickException {
         Piece returnedPiece = nextPiece;
         nextPiece = Piece.getRandomPiece();
-        nextPieceRenderer.setNextPiece(nextPiece);
+        nextPieceBox.setNextPiece(nextPiece);
 
         return returnedPiece;
     }

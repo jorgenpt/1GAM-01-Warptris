@@ -40,6 +40,10 @@ public class BlockRenderer {
         return (y - (int) renderArea.getY()) / blockSize;
     }
 
+    public int getBlockSize() {
+        return blockSize;
+    }
+
     public void renderAtPixel(Graphics g, int x, int y, Color color) {
         g.setColor(color);
         g.setClip(renderArea);
