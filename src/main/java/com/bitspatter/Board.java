@@ -28,11 +28,11 @@ public class Board {
         }
     }
 
-    public void render(Graphics g, Rectangle rect, boolean warping) {
+    public void render(Graphics g, Rectangle rect, boolean hideBlocks) {
         g.setColor(Color.white);
         g.drawRect(rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight());
 
-        if (warping)
+        if (hideBlocks)
             return;
 
         for (int y = 0; y < finalizedBlocks.length; ++y) {

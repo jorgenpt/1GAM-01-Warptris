@@ -48,11 +48,14 @@ public class PlayingState extends BasicGameState implements MouseListener {
     @Override
     public void render(GameContainer gc, StateBasedGame game, Graphics g) throws SlickException {
         boolean warping = (state == PlayState.Warping);
-        if (warping) {
+        boolean paused = (state == PlayState.Paused);
+        if (warping || paused) {
             board.renderWarping(g, boardRenderArea);
         }
 
-        currentPiece.render(g);
+        if (!paused) {
+            currentPiece.render(g);
+        }
 
         if (warping) {
             Input input = gc.getInput();
@@ -61,7 +64,7 @@ public class PlayingState extends BasicGameState implements MouseListener {
             g.clearClip();
         }
 
-        board.render(g, boardRenderArea, warping);
+        board.render(g, boardRenderArea, warping || paused);
 
         g.drawImage((warping ? warpingInstructions : instructions), boardRenderArea.getMaxX() + 2 * BOARD_MARGIN,
                         BOARD_MARGIN);
@@ -117,6 +120,14 @@ public class PlayingState extends BasicGameState implements MouseListener {
         Input input = gc.getInput();
         if (input.isKeyPressed(Input.KEY_SPACE)) {
             toggleWarping();
+        }
+
+        if (input.isKeyPressed(Input.KEY_ESCAPE)) {
+            if (state == PlayState.Playing) {
+                state = PlayState.Paused;
+            } else if (state == PlayState.Paused) {
+                state = PlayState.Playing;
+            }
         }
 
         if (state != PlayState.Playing) {
