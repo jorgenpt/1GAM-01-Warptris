@@ -98,11 +98,7 @@ public class Piece implements Cloneable {
                                         { true, true } }),
                         // J piece
                         new Piece(renderer, Color.blue,
-                                        new boolean[][] { { true, false, false }, { true, true, true } }),
-                        // Non-standard: Hat piece
-                        new Piece(renderer, Color.pink,
-                                        new boolean[][] { { false, true, false }, { true, false, true } }), };
-    }
+                                        new boolean[][] { { true, false, false }, { true, true, true } }), };    }
 
     static Random random = new Random();
 
