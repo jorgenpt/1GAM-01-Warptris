@@ -9,10 +9,11 @@ import org.newdawn.slick.state.*;
 import org.newdawn.slick.state.transition.*;
 
 import com.bitspatter.*;
+import com.bitspatter.Board.BoardListener;
 import com.bitspatter.renderers.BlockRenderer;
 import com.bitspatter.renderers.NextPieceRenderer;
 
-public class PlayingState extends BasicGameState implements MouseListener {
+public class PlayingState extends BasicGameState implements MouseListener, BoardListener {
     public final static int STATE_ID = 2;
     final int SECONDS_PER_STEP = 1;
     final int BOARD_MARGIN = 10;
@@ -139,7 +140,7 @@ public class PlayingState extends BasicGameState implements MouseListener {
 
     @Override
     public void enter(GameContainer container, StateBasedGame game) throws SlickException {
-        board = new Board(BOARD_WIDTH, BOARD_HEIGHT, blockRenderer);
+        board = new Board(BOARD_WIDTH, BOARD_HEIGHT, this, blockRenderer);
         nextPiece = Piece.getRandomPiece();
         currentPiece = getNextPiece();
         score = new Score();
@@ -314,5 +315,10 @@ public class PlayingState extends BasicGameState implements MouseListener {
 
     int getBlockYFromMouseY(int mouseY) {
         return blockRenderer.getBlockY(mouseY - dragOffsetY);
+    }
+
+    @Override
+    public void onRowsCleared(int numRows) {
+        score.clearRows(1, numRows);
     }
 }

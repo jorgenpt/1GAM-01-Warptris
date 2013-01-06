@@ -11,15 +11,21 @@ import org.newdawn.slick.geom.Rectangle;
 import com.bitspatter.renderers.BlockRenderer;
 
 public class Board {
+    public interface BoardListener {
+        void onRowsCleared(int numRows);
+    }
+
     int width, height;
     Color[][] finalizedBlocks;
     Image warpCloud;
+    BoardListener listener;
     BlockRenderer blockRenderer;
     BoardMutation pendingMutation;
 
-    public Board(int width, int height, BlockRenderer blockRenderer) {
+    public Board(int width, int height, BoardListener listener, BlockRenderer blockRenderer) {
         this.width = width;
         this.height = height;
+        this.listener = listener;
         this.blockRenderer = blockRenderer;
         this.finalizedBlocks = new Color[height][width];
         try {
@@ -114,6 +120,7 @@ public class Board {
     }
 
     private void clearCompletedRows(Piece piece) {
+        int numRowsCleared = 0;
         for (int y = piece.getHeight() - 1; y >= 0; --y) {
             int blockY = piece.topLeftY + y;
             if (blockY >= height) {
@@ -122,8 +129,13 @@ public class Board {
 
             if (isRowCompleted(blockY)) {
                 clearRow(blockY);
+                numRowsCleared++;
                 y++;
             }
+        }
+
+        if (numRowsCleared > 0) {
+            listener.onRowsCleared(numRowsCleared);
         }
     }
 
