@@ -20,8 +20,8 @@ public class PlayingState extends BasicGameState implements MouseListener {
 
     BlockRenderer blockRenderer;
     Rectangle boardRenderArea;
-    
-    Image instructions;
+
+    Image instructions, warpingInstructions;
 
     // Number of ms until we do a "soft drop" (i.e. move the current piece one step down)
     int msTillNextStep;
@@ -62,8 +62,9 @@ public class PlayingState extends BasicGameState implements MouseListener {
         }
 
         board.render(g, boardRenderArea, warping);
-        
-        g.drawImage(instructions, boardRenderArea.getMaxX() + 2 * BOARD_MARGIN, BOARD_MARGIN); 
+
+        g.drawImage((warping ? warpingInstructions : instructions), boardRenderArea.getMaxX() + 2 * BOARD_MARGIN,
+                        BOARD_MARGIN);
     }
 
     @Override
@@ -71,8 +72,9 @@ public class PlayingState extends BasicGameState implements MouseListener {
         initializeRenderer(gc);
         Piece.createPieces(blockRenderer);
         initializeInput(gc);
-        
+
         instructions = new Image("playing_instructions.png");
+        warpingInstructions = new Image("warping_instructions.png");
     }
 
     @Override
