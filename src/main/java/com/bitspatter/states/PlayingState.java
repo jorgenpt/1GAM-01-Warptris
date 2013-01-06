@@ -57,6 +57,65 @@ public class PlayingState extends BasicGameState implements MouseListener, Board
     }
 
     @Override
+    public void init(GameContainer gc, StateBasedGame game) throws SlickException {
+        initializeRenderers(gc);
+        Piece.createPieces(blockRenderer);
+        initializeInput(gc);
+
+        instructions = new Image("playing_instructions.png");
+        warpingInstructions = new Image("warping_instructions.png");
+        gameOverImage = new Image("game_over.png");
+
+        SoundStore soundStore = SoundStore.get();
+        soundStore.init();
+
+        try {
+            dragInvalidSound = soundStore.getWAV("drag_invalid.wav");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            dragValidSound = soundStore.getWAV("drag_valid.wav");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            pieceLandedSound = soundStore.getWAV("piece_landed.wav");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void initializeInput(GameContainer gc) {
+        Input input = gc.getInput();
+        input.enableKeyRepeat();
+        input.addMouseListener(this);
+    }
+
+    private void initializeRenderers(GameContainer gc) {
+        int boardHeight = gc.getHeight() - BOARD_MARGIN * 2;
+        int blockSize = boardHeight / BOARD_HEIGHT;
+        boardHeight = blockSize * BOARD_HEIGHT;
+
+        boardRenderArea = new Rectangle(BOARD_MARGIN, BOARD_WIDTH, blockSize * BOARD_WIDTH, boardHeight);
+        blockRenderer = new BlockRenderer(boardRenderArea, blockSize);
+        nextPieceBox = new NextPieceBox(new BlockRenderer(null, blockSize));
+    }
+
+    @Override
+    public void enter(GameContainer container, StateBasedGame game) throws SlickException {
+        board = new Board(BOARD_WIDTH, BOARD_HEIGHT, this, blockRenderer);
+        nextPiece = Piece.getRandomPiece();
+        currentPiece = getNextPiece();
+        score = new Score();
+
+        msTillNextStep = SECONDS_PER_STEP * 1000;
+        state = PlayState.Playing;
+    }
+
+    @Override
     public void render(GameContainer gc, StateBasedGame game, Graphics g) throws SlickException {
         boolean warping = (state == PlayState.Warping);
         boolean paused = (state == PlayState.Paused);
@@ -103,65 +162,6 @@ public class PlayingState extends BasicGameState implements MouseListener, Board
         rightPaneY += score.getHeight() + BOARD_MARGIN;
 
         g.drawImage(rightHandPane, rightPaneX, rightPaneY);
-    }
-
-    @Override
-    public void init(GameContainer gc, StateBasedGame game) throws SlickException {
-        initializeRenderers(gc);
-        Piece.createPieces(blockRenderer);
-        initializeInput(gc);
-
-        instructions = new Image("playing_instructions.png");
-        warpingInstructions = new Image("warping_instructions.png");
-        gameOverImage = new Image("game_over.png");
-
-        SoundStore soundStore = SoundStore.get();
-        soundStore.init();
-
-        try {
-            dragInvalidSound = soundStore.getWAV("drag_invalid.wav");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            dragValidSound = soundStore.getWAV("drag_valid.wav");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            pieceLandedSound = soundStore.getWAV("piece_landed.wav");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void enter(GameContainer container, StateBasedGame game) throws SlickException {
-        board = new Board(BOARD_WIDTH, BOARD_HEIGHT, this, blockRenderer);
-        nextPiece = Piece.getRandomPiece();
-        currentPiece = getNextPiece();
-        score = new Score();
-
-        msTillNextStep = SECONDS_PER_STEP * 1000;
-        state = PlayState.Playing;
-    }
-
-    private void initializeInput(GameContainer gc) {
-        Input input = gc.getInput();
-        input.enableKeyRepeat();
-        input.addMouseListener(this);
-    }
-
-    private void initializeRenderers(GameContainer gc) {
-        int boardHeight = gc.getHeight() - BOARD_MARGIN * 2;
-        int blockSize = boardHeight / BOARD_HEIGHT;
-        boardHeight = blockSize * BOARD_HEIGHT;
-
-        boardRenderArea = new Rectangle(BOARD_MARGIN, BOARD_WIDTH, blockSize * BOARD_WIDTH, boardHeight);
-        blockRenderer = new BlockRenderer(boardRenderArea, blockSize);
-        nextPieceBox = new NextPieceBox(new BlockRenderer(null, blockSize));
     }
 
     private void toggleWarping() {
