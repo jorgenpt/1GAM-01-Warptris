@@ -39,7 +39,7 @@ public class PlayingState extends BasicGameState implements MouseListener {
         Ended
     }
 
-    PlayState state = PlayState.Playing;
+    PlayState state;
 
     // This is the delta between the mouse pointer and the top left of the currently dragged block, to make dragging
     // feel natural.
@@ -129,6 +129,7 @@ public class PlayingState extends BasicGameState implements MouseListener {
         board = new Board(BOARD_WIDTH, BOARD_HEIGHT, blockRenderer);
         currentPiece = Piece.getRandomPiece();
         msTillNextStep = SECONDS_PER_STEP * 1000;
+        state = PlayState.Playing;
     }
 
     private void initializeInput(GameContainer gc) {
