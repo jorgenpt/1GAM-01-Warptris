@@ -3,6 +3,8 @@ package com.bitspatter.states;
 import org.newdawn.slick.*;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.state.*;
+import org.newdawn.slick.state.transition.FadeInTransition;
+import org.newdawn.slick.state.transition.FadeOutTransition;
 
 import com.bitspatter.*;
 import com.bitspatter.renderers.BlockRenderer;
@@ -21,7 +23,7 @@ public class PlayingState extends BasicGameState implements MouseListener {
     BlockRenderer blockRenderer;
     Rectangle boardRenderArea;
 
-    Image instructions, warpingInstructions;
+    Image instructions, warpingInstructions, gameOverImage;
 
     // Number of ms until we do a "soft drop" (i.e. move the current piece one step down)
     int msTillNextStep;
@@ -53,7 +55,7 @@ public class PlayingState extends BasicGameState implements MouseListener {
             board.renderWarping(g, boardRenderArea);
         }
 
-        if (!paused) {
+        if (!paused && currentPiece != null) {
             currentPiece.render(g);
         }
 
@@ -66,8 +68,14 @@ public class PlayingState extends BasicGameState implements MouseListener {
 
         board.render(g, boardRenderArea, warping || paused);
 
-        g.drawImage((warping ? warpingInstructions : instructions), boardRenderArea.getMaxX() + 2 * BOARD_MARGIN,
-                        BOARD_MARGIN);
+        Image rightHandPane = instructions;
+        if (state == PlayState.Ended) {
+            rightHandPane = gameOverImage;
+        } else if (warping) {
+            rightHandPane = warpingInstructions;
+        }
+
+        g.drawImage(rightHandPane, boardRenderArea.getMaxX() + 2 * BOARD_MARGIN, BOARD_MARGIN);
     }
 
     @Override
@@ -78,6 +86,7 @@ public class PlayingState extends BasicGameState implements MouseListener {
 
         instructions = new Image("playing_instructions.png");
         warpingInstructions = new Image("warping_instructions.png");
+        gameOverImage = new Image("game_over.png");
     }
 
     @Override
@@ -127,6 +136,8 @@ public class PlayingState extends BasicGameState implements MouseListener {
                 state = PlayState.Paused;
             } else if (state == PlayState.Paused) {
                 state = PlayState.Playing;
+            } else if (state == PlayState.Ended) {
+                game.enterState(MenuState.STATE_ID, new FadeOutTransition(), new FadeInTransition());
             }
         }
 
@@ -150,15 +161,15 @@ public class PlayingState extends BasicGameState implements MouseListener {
 
         if (input.isKeyPressed(Input.KEY_DOWN)) {
             msTillNextStep = SECONDS_PER_STEP * 1000;
-            lowerPiece(game);
+            lowerPiece();
         } else if (input.isKeyPressed(Input.KEY_UP)) {
-            while (!lowerPiece(game))
+            while (!lowerPiece())
                 ;
         } else {
             msTillNextStep -= delta;
             if (msTillNextStep < 0) {
                 msTillNextStep += SECONDS_PER_STEP * 1000;
-                lowerPiece(game);
+                lowerPiece();
             }
         }
     }
@@ -177,16 +188,17 @@ public class PlayingState extends BasicGameState implements MouseListener {
         }
     }
 
-    private boolean lowerPiece(StateBasedGame game) throws SlickException {
+    private boolean lowerPiece() throws SlickException {
         currentPiece.topLeftY++;
         if (board.pieceLanded(currentPiece)) {
             currentPiece.topLeftY--;
             if (board.finalizePiece(currentPiece)) {
-                // TODO: Switch 'state' so we'll show "game over", and then press a button to go to menu.
-                game.enterState(MenuState.STATE_ID);
+                state = PlayState.Ended;
+                currentPiece = null;
+            } else {
+                currentPiece = Piece.getRandomPiece();
             }
 
-            currentPiece = Piece.getRandomPiece();
             return true;
         }
 
