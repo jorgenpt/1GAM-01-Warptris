@@ -47,4 +47,15 @@ public class BlockRenderer {
     public void render(Graphics g, int blockX, int blockY, Color color) {
         renderAtPixel(g, getX(blockX), getY(blockY), color);
     }
+
+    public void renderOutline(Graphics g, int blockX, int blockY, Color color) {
+        renderOutlineAtPixel(g, getX(blockX), getY(blockY), color);
+    }
+
+    public void renderOutlineAtPixel(Graphics g, int x, int y, Color color) {
+        g.setColor(color);
+        g.setClip(renderArea);
+        g.drawRect(x, y, blockSize, blockSize);
+        g.clearClip();
+    }
 }

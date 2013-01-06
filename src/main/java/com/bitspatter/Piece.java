@@ -19,6 +19,8 @@ public class Piece implements Cloneable {
     // True if this piece has been mutated so far.
     public boolean warped = false;
 
+    final Color outlineColor = Color.white;
+
     public Piece(BlockRenderer renderer, Color color, boolean[][] blocks) throws SlickException {
         this.renderer = renderer;
         this.color = color;
@@ -34,11 +36,16 @@ public class Piece implements Cloneable {
         return blocks[y][x];
     }
 
-    public void render(Graphics g) {
+    public void render(Graphics g, boolean renderOutlines) {
         for (int y = 0; y < blocks.length; ++y) {
             for (int x = 0; x < blocks[y].length; ++x) {
                 if (shouldRender(x, y)) {
-                    renderer.render(g, topLeftX + x, topLeftY + y, color);
+                    int blockX = topLeftX + x;
+                    int blockY = topLeftY + y;
+                    renderer.render(g, blockX, blockY, color);
+                    if (renderOutlines) {
+                        renderer.renderOutline(g, blockX, blockY, outlineColor);
+                    }
                 }
             }
         }
@@ -47,6 +54,7 @@ public class Piece implements Cloneable {
     public void renderDraggable(Graphics g, int x, int y) {
         if (dragging) {
             renderer.renderAtPixel(g, x, y, color);
+            renderer.renderOutlineAtPixel(g, x, y, outlineColor);
         }
     }
 

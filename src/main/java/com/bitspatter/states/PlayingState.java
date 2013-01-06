@@ -56,7 +56,7 @@ public class PlayingState extends BasicGameState implements MouseListener {
         }
 
         if (!paused && currentPiece != null) {
-            currentPiece.render(g);
+            currentPiece.render(g, warping);
         }
 
         if (warping) {
