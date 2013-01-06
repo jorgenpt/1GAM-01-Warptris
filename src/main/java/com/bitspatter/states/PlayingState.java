@@ -1,10 +1,12 @@
 package com.bitspatter.states;
 
+import java.io.IOException;
+
 import org.newdawn.slick.*;
 import org.newdawn.slick.geom.Rectangle;
+import org.newdawn.slick.openal.*;
 import org.newdawn.slick.state.*;
-import org.newdawn.slick.state.transition.FadeInTransition;
-import org.newdawn.slick.state.transition.FadeOutTransition;
+import org.newdawn.slick.state.transition.*;
 
 import com.bitspatter.*;
 import com.bitspatter.renderers.BlockRenderer;
@@ -24,6 +26,7 @@ public class PlayingState extends BasicGameState implements MouseListener {
     Rectangle boardRenderArea;
 
     Image instructions, warpingInstructions, gameOverImage;
+    Audio dragInvalidSound, dragValidSound, pieceLandedSound;
 
     // Number of ms until we do a "soft drop" (i.e. move the current piece one step down)
     int msTillNextStep;
@@ -98,6 +101,27 @@ public class PlayingState extends BasicGameState implements MouseListener {
         instructions = new Image("playing_instructions.png");
         warpingInstructions = new Image("warping_instructions.png");
         gameOverImage = new Image("game_over.png");
+
+        SoundStore soundStore = SoundStore.get();
+        soundStore.init();
+
+        try {
+            dragInvalidSound = soundStore.getWAV("drag_invalid.wav");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            dragValidSound = soundStore.getWAV("drag_valid.wav");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            pieceLandedSound = soundStore.getWAV("piece_landed.wav");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -207,6 +231,7 @@ public class PlayingState extends BasicGameState implements MouseListener {
                 state = PlayState.Ended;
                 currentPiece = null;
             } else {
+                pieceLandedSound.playAsSoundEffect(1.0f, 1.0f, false);
                 currentPiece = Piece.getRandomPiece();
             }
 
@@ -240,7 +265,7 @@ public class PlayingState extends BasicGameState implements MouseListener {
 
     @Override
     public void mouseReleased(int button, int x, int y) {
-        if (button == 0) {
+        if (currentPiece.dragging && button == 0) {
             int blockX = getBlockXFromMouseX(x);
             int blockY = getBlockYFromMouseY(y);
             if (board.contains(blockX, blockY)) {
@@ -248,6 +273,9 @@ public class PlayingState extends BasicGameState implements MouseListener {
                     currentPiece.warped = true;
                     state = PlayState.Playing;
                     board.mutate();
+                    dragValidSound.playAsSoundEffect(1.0f, 1.0f, false);
+                } else {
+                    dragInvalidSound.playAsSoundEffect(1.0f, 1.0f, false);
                 }
             } else {
                 currentPiece.stopDrag();
