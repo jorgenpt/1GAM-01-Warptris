@@ -10,6 +10,7 @@ import org.newdawn.slick.state.transition.*;
 
 import com.bitspatter.*;
 import com.bitspatter.renderers.BlockRenderer;
+import com.bitspatter.renderers.NextPieceRenderer;
 
 public class PlayingState extends BasicGameState implements MouseListener {
     public final static int STATE_ID = 2;
@@ -19,14 +20,17 @@ public class PlayingState extends BasicGameState implements MouseListener {
 
     // Board including landed pieces.
     Board board;
-    // Currently dropping piece.
-    Piece currentPiece;
+    // Currently dropping piece and the coming piece.
+    Piece currentPiece, nextPiece;
 
     BlockRenderer blockRenderer;
+    NextPieceRenderer nextPieceRenderer;
     Rectangle boardRenderArea;
 
     Image instructions, warpingInstructions, gameOverImage;
     Audio dragInvalidSound, dragValidSound, pieceLandedSound;
+
+    Score score;
 
     // Number of ms until we do a "soft drop" (i.e. move the current piece one step down)
     int msTillNextStep;
@@ -89,12 +93,21 @@ public class PlayingState extends BasicGameState implements MouseListener {
             rightHandPane = warpingInstructions;
         }
 
-        g.drawImage(rightHandPane, boardRenderArea.getMaxX() + 2 * BOARD_MARGIN, BOARD_MARGIN);
+        float rightPaneX = boardRenderArea.getMaxX() + 2 * BOARD_MARGIN;
+        float rightPaneY = BOARD_MARGIN;
+
+        nextPieceRenderer.render(g, rightPaneX, rightPaneY);
+        rightPaneY += nextPieceRenderer.getHeight() + BOARD_MARGIN;
+
+        score.render(g, rightPaneX, rightPaneY);
+        rightPaneY += score.getHeight() + BOARD_MARGIN;
+
+        g.drawImage(rightHandPane, rightPaneX, rightPaneY);
     }
 
     @Override
     public void init(GameContainer gc, StateBasedGame game) throws SlickException {
-        initializeRenderer(gc);
+        initializeRenderers(gc);
         Piece.createPieces(blockRenderer);
         initializeInput(gc);
 
@@ -127,7 +140,10 @@ public class PlayingState extends BasicGameState implements MouseListener {
     @Override
     public void enter(GameContainer container, StateBasedGame game) throws SlickException {
         board = new Board(BOARD_WIDTH, BOARD_HEIGHT, blockRenderer);
-        currentPiece = Piece.getRandomPiece();
+        nextPiece = Piece.getRandomPiece();
+        currentPiece = getNextPiece();
+        score = new Score();
+
         msTillNextStep = SECONDS_PER_STEP * 1000;
         state = PlayState.Playing;
     }
@@ -138,14 +154,14 @@ public class PlayingState extends BasicGameState implements MouseListener {
         input.addMouseListener(this);
     }
 
-    private void initializeRenderer(GameContainer gc) {
+    private void initializeRenderers(GameContainer gc) {
         int boardHeight = gc.getHeight() - BOARD_MARGIN * 2;
         int blockSize = boardHeight / BOARD_HEIGHT;
         boardHeight = blockSize * BOARD_HEIGHT;
-        float actualYMargin = (gc.getHeight() - boardHeight) / 2.0f;
 
-        boardRenderArea = new Rectangle(BOARD_MARGIN, actualYMargin, blockSize * BOARD_WIDTH, boardHeight);
+        boardRenderArea = new Rectangle(BOARD_MARGIN, BOARD_WIDTH, blockSize * BOARD_WIDTH, boardHeight);
         blockRenderer = new BlockRenderer(boardRenderArea, blockSize);
+        nextPieceRenderer = new NextPieceRenderer(new BlockRenderer(null, blockSize));
     }
 
     private void toggleWarping() {
@@ -210,6 +226,14 @@ public class PlayingState extends BasicGameState implements MouseListener {
         }
     }
 
+    private Piece getNextPiece() throws SlickException {
+        Piece returnedPiece = nextPiece;
+        nextPiece = Piece.getRandomPiece();
+        nextPieceRenderer.setNextPiece(nextPiece);
+
+        return returnedPiece;
+    }
+
     private void rotatePiece(boolean clockwise) throws SlickException {
         Piece newPiece = currentPiece.rotated(clockwise);
         if (board.nudgeToValid(newPiece)) {
@@ -233,7 +257,7 @@ public class PlayingState extends BasicGameState implements MouseListener {
                 currentPiece = null;
             } else {
                 pieceLandedSound.playAsSoundEffect(1.0f, 1.0f, false);
-                currentPiece = Piece.getRandomPiece();
+                currentPiece = getNextPiece();
             }
 
             return true;

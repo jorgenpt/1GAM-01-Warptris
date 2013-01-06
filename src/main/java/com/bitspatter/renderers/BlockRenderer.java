@@ -9,7 +9,10 @@ public class BlockRenderer {
     int blockSize;
 
     public BlockRenderer(Rectangle renderArea, int blockSize) {
-        this.renderArea = renderArea;
+        if (renderArea == null)
+            this.renderArea = new Rectangle(0, 0, blockSize * 8, blockSize * 8);
+        else
+            this.renderArea = renderArea;
         this.blockSize = blockSize;
     }
 
