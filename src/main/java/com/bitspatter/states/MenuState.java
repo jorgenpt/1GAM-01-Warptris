@@ -5,7 +5,7 @@ import org.newdawn.slick.state.*;
 import org.newdawn.slick.state.transition.FadeInTransition;
 import org.newdawn.slick.state.transition.FadeOutTransition;
 
-public class MenuState extends BasicGameState {
+public class MenuState extends CommonState {
     interface MenuAction {
         void onClick();
     }
@@ -63,6 +63,8 @@ public class MenuState extends BasicGameState {
 
     @Override
     public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
+        super.update(container, game, delta);
+
         Input input = container.getInput();
 
         if (input.isKeyPressed(Input.KEY_DOWN)) {

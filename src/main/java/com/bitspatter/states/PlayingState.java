@@ -13,7 +13,7 @@ import com.bitspatter.Board.BoardListener;
 import com.bitspatter.EntropyMeter.EntropyListener;
 import com.bitspatter.renderers.BlockRenderer;
 
-public class PlayingState extends BasicGameState implements MouseListener, BoardListener, EntropyListener {
+public class PlayingState extends CommonState implements MouseListener, BoardListener, EntropyListener {
     private enum PlayState {
         Playing,
         Paused,
@@ -184,6 +184,8 @@ public class PlayingState extends BasicGameState implements MouseListener, Board
 
     @Override
     public void update(GameContainer gc, StateBasedGame game, int delta) throws SlickException {
+        super.update(gc, game, delta);
+
         Input input = gc.getInput();
         if (input.isKeyPressed(Input.KEY_SPACE)) {
             toggleWarping();
