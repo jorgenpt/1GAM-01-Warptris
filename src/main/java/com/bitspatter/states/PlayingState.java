@@ -10,9 +10,10 @@ import org.newdawn.slick.state.transition.*;
 
 import com.bitspatter.*;
 import com.bitspatter.Board.BoardListener;
+import com.bitspatter.EntropyMeter.EntropyListener;
 import com.bitspatter.renderers.BlockRenderer;
 
-public class PlayingState extends BasicGameState implements MouseListener, BoardListener {
+public class PlayingState extends BasicGameState implements MouseListener, BoardListener, EntropyListener {
     public final static int STATE_ID = 2;
     final int SECONDS_PER_STEP = 1;
     final int BOARD_MARGIN = 10;
@@ -28,9 +29,10 @@ public class PlayingState extends BasicGameState implements MouseListener, Board
     Rectangle boardRenderArea;
 
     Image instructions, warpingInstructions, gameOverImage;
-    Audio dragInvalidSound, dragValidSound, pieceLandedSound;
+    Audio dragInvalidSound, dragValidSound, pieceLandedSound, mutateSound;
 
     Score score;
+    EntropyMeter entropyMeter;
 
     // Number of ms until we do a "soft drop" (i.e. move the current piece one step down)
     int msTillNextStep;
@@ -71,18 +73,9 @@ public class PlayingState extends BasicGameState implements MouseListener, Board
 
         try {
             dragInvalidSound = soundStore.getWAV("drag_invalid.wav");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        try {
             dragValidSound = soundStore.getWAV("drag_valid.wav");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        try {
             pieceLandedSound = soundStore.getWAV("piece_landed.wav");
+            mutateSound = soundStore.getWAV("mutation.wav");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -110,6 +103,7 @@ public class PlayingState extends BasicGameState implements MouseListener, Board
         nextPiece = Piece.getRandomPiece();
         currentPiece = getNextPiece();
         score = new Score();
+        entropyMeter = new EntropyMeter(this);
 
         msTillNextStep = SECONDS_PER_STEP * 1000;
         state = PlayState.Playing;
@@ -162,6 +156,10 @@ public class PlayingState extends BasicGameState implements MouseListener, Board
         rightPaneY += score.getHeight() + BOARD_MARGIN;
 
         g.drawImage(rightHandPane, rightPaneX, rightPaneY);
+
+        rightPaneY = BOARD_MARGIN;
+        rightPaneX += nextPieceBox.getWidth() + BOARD_MARGIN;
+        entropyMeter.render(g, rightPaneX, rightPaneY);
     }
 
     private void toggleWarping() {
@@ -297,7 +295,7 @@ public class PlayingState extends BasicGameState implements MouseListener, Board
                 if (currentPiece.stopDrag(blockX, blockY)) {
                     currentPiece.warped = true;
                     state = PlayState.Playing;
-                    board.mutate();
+                    entropyMeter.addEntropy();
                     dragValidSound.playAsSoundEffect(1.0f, 1.0f, false);
                 } else {
                     dragInvalidSound.playAsSoundEffect(1.0f, 1.0f, false);
@@ -319,5 +317,11 @@ public class PlayingState extends BasicGameState implements MouseListener, Board
     @Override
     public void onRowsCleared(int numRows) {
         score.clearRows(1, numRows);
+    }
+
+    @Override
+    public void onEntropyOverflown() {
+        board.mutate();
+        mutateSound.playAsSoundEffect(1.0f, 1.0f, false);
     }
 }

@@ -31,7 +31,7 @@ public class NextPieceBox {
     }
 
     public int getWidth() {
-        return 250;
+        return 150;
     }
 
     public int getHeight() {

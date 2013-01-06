@@ -6,11 +6,10 @@ public class Score {
     int score;
 
     Font font;
-    int margin;
+    final int margin = 10;
 
     public Score() throws SlickException {
         this.font = Warptris.getFont(16, false);
-        this.margin = (getHeight() - font.getLineHeight()) / 2;
         this.score = 0;
     }
 
@@ -35,16 +34,22 @@ public class Score {
     }
 
     public int getWidth() {
-        return 250;
+        return 150;
     }
 
     public int getHeight() {
-        return 32;
+        return font.getLineHeight() + font.getLineHeight() + margin * 3;
     }
 
     public void render(Graphics g, float x, float y) {
         g.setColor(Color.white);
         g.drawRect(x, y, getWidth(), getHeight());
-        font.drawString(x + margin, y + margin, "Score: " + score);
+
+        x += margin;
+        y += margin;
+        font.drawString(x, y, "Score:");
+
+        y += margin + font.getLineHeight();
+        font.drawString(x, y, "" + score);
     }
 }
