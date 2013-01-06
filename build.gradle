@@ -41,3 +41,22 @@ natives.platforms.each { platform ->
 jar {
     manifest.attributes("Main-Class": "com.bitspatter.Warptris")
 }
+
+task signJar(dependsOn: jar, type: Exec) {
+    def outputDir = new File("${project.buildDir}/signed")
+    outputDir.mkdirs()
+    ext.outputFile = new File("${outputDir}/${tasks.jar.archiveName}")
+
+    executable 'jarsigner'
+    args '-signedjar', ext.outputFile
+    args tasks.jar.archivePath
+    args 'jorgenpt'
+
+    standardInput = System.in
+}
+
+task uploadToDropbox(dependsOn: signJar, type: Copy) {
+    def home = System.getProperty("user.home")
+    from tasks.signJar.outputFile
+    into "$home/Dropbox/Public/1GAM"
+}
