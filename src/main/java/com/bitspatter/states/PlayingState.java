@@ -14,8 +14,18 @@ import com.bitspatter.EntropyMeter.EntropyListener;
 import com.bitspatter.renderers.BlockRenderer;
 
 public class PlayingState extends BasicGameState implements MouseListener, BoardListener, EntropyListener {
+    private enum PlayState {
+        Playing,
+        Paused,
+        Warping,
+        Ended
+    }
+
     public final static int STATE_ID = 2;
-    final int SECONDS_PER_STEP = 1;
+    final int INITIAL_MS_PER_STEP = 700;
+    final int MS_PER_LEVEL = 70;
+    final int ROWS_PER_LEVEL = 10;
+    final int MAX_LEVEL = 10;
     final int BOARD_MARGIN = 10;
     final int BOARD_WIDTH = 10, BOARD_HEIGHT = 22;
 
@@ -37,14 +47,10 @@ public class PlayingState extends BasicGameState implements MouseListener, Board
     // Number of ms until we do a "soft drop" (i.e. move the current piece one step down)
     int msTillNextStep;
 
-    // Whether or not we're currently in "warp" mode, i.e. game paused and allowing player to move blocks.
-    private enum PlayState {
-        Playing,
-        Paused,
-        Warping,
-        Ended
-    }
-
+    // Number of rows needing clearing before you reach next level
+    int rowsTillNextLevel;
+    // What level we are on (affects speed &
+    int level;
     PlayState state;
 
     // This is the delta between the mouse pointer and the top left of the currently dragged block, to make dragging
@@ -105,7 +111,9 @@ public class PlayingState extends BasicGameState implements MouseListener, Board
         score = new Score();
         entropyMeter = new EntropyMeter(this);
 
-        msTillNextStep = SECONDS_PER_STEP * 1000;
+        msTillNextStep = INITIAL_MS_PER_STEP;
+        rowsTillNextLevel = ROWS_PER_LEVEL;
+        level = 1;
         state = PlayState.Playing;
     }
 
@@ -210,7 +218,7 @@ public class PlayingState extends BasicGameState implements MouseListener, Board
         }
 
         if (input.isKeyPressed(Input.KEY_DOWN)) {
-            msTillNextStep = SECONDS_PER_STEP * 1000;
+            msTillNextStep = INITIAL_MS_PER_STEP - (MS_PER_LEVEL * (level - 1));
             lowerPiece();
         } else if (input.isKeyPressed(Input.KEY_UP)) {
             while (!lowerPiece())
@@ -218,7 +226,7 @@ public class PlayingState extends BasicGameState implements MouseListener, Board
         } else {
             msTillNextStep -= delta;
             if (msTillNextStep < 0) {
-                msTillNextStep += SECONDS_PER_STEP * 1000;
+                msTillNextStep = INITIAL_MS_PER_STEP - (MS_PER_LEVEL * (level - 1));
                 lowerPiece();
             }
         }
@@ -317,6 +325,11 @@ public class PlayingState extends BasicGameState implements MouseListener, Board
     @Override
     public void onRowsCleared(int numRows) {
         score.clearRows(1, numRows);
+        rowsTillNextLevel -= numRows;
+        if (rowsTillNextLevel <= 0) {
+            rowsTillNextLevel += ROWS_PER_LEVEL;
+            level++;
+        }
     }
 
     @Override
