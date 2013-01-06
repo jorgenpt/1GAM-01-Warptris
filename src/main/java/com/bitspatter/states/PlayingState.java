@@ -40,7 +40,9 @@ public class PlayingState extends BasicGameState implements MouseListener {
 
     // This is the delta between the mouse pointer and the top left of the currently dragged block, to make dragging
     // feel natural.
-    int dragOffsetX, dragOffsetY;
+    private int dragOffsetX, dragOffsetY;
+
+    final Color highlightColor = new Color(1.0f, 1.0f, 1.0f, 0.6f);
 
     @Override
     public int getID() {
@@ -53,6 +55,15 @@ public class PlayingState extends BasicGameState implements MouseListener {
         boolean paused = (state == PlayState.Paused);
         if (warping || paused) {
             board.renderWarping(g, boardRenderArea);
+        }
+
+        if (warping && currentPiece.dragging) {
+            Input input = gc.getInput();
+            int blockX = getBlockXFromMouseX(input.getMouseX());
+            int blockY = getBlockYFromMouseY(input.getMouseY());
+            if (currentPiece.isValidDropTarget(currentPiece.getLocalX(blockX), currentPiece.getLocalY(blockY))) {
+                blockRenderer.render(g, blockX, blockY, highlightColor);
+            }
         }
 
         if (!paused && currentPiece != null) {
@@ -230,8 +241,8 @@ public class PlayingState extends BasicGameState implements MouseListener {
     @Override
     public void mouseReleased(int button, int x, int y) {
         if (button == 0) {
-            int blockX = blockRenderer.getBlockX(x);
-            int blockY = blockRenderer.getBlockX(y);
+            int blockX = getBlockXFromMouseX(x);
+            int blockY = getBlockYFromMouseY(y);
             if (board.contains(blockX, blockY)) {
                 if (currentPiece.stopDrag(blockX, blockY)) {
                     currentPiece.warped = true;
@@ -242,5 +253,13 @@ public class PlayingState extends BasicGameState implements MouseListener {
                 currentPiece.stopDrag();
             }
         }
+    }
+
+    int getBlockXFromMouseX(int mouseX) {
+        return blockRenderer.getBlockX(mouseX - dragOffsetX);
+    }
+
+    int getBlockYFromMouseY(int mouseY) {
+        return blockRenderer.getBlockY(mouseY - dragOffsetY);
     }
 }

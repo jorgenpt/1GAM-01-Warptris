@@ -18,6 +18,10 @@ public class Piece implements Cloneable {
 
     // True if this piece has been mutated so far.
     public boolean warped = false;
+    // True if we're currently dragging a block from this piece.
+    public boolean dragging = false;
+
+    int draggingX, draggingY;
 
     final Color outlineColor = Color.white;
     final Color droppableOutlineColor = Color.green;
@@ -56,11 +60,7 @@ public class Piece implements Cloneable {
                         renderer.renderOutline(g, blockX, blockY, outlineColor);
                     }
                 } else if (dragging) {
-                    if (x == draggingX && y == draggingY) {
-                        continue;
-                    }
-
-                    if (!hasAnyNonDraggedNeighbor(x, y)) {
+                    if (!isValidDropTarget(x, y)) {
                         continue;
                     }
 
@@ -150,8 +150,13 @@ public class Piece implements Cloneable {
         return blocks.length;
     }
 
-    int draggingX, draggingY;
-    boolean dragging = false;
+    public int getLocalX(int blockX) {
+        return blockX - topLeftX;
+    }
+
+    public int getLocalY(int blockY) {
+        return blockY - topLeftY;
+    }
 
     public void startDrag(int blockX, int blockY) {
         if (!contains(blockX, blockY)) {
@@ -241,6 +246,10 @@ public class Piece implements Cloneable {
     }
 
     public boolean hasAnyNonDraggedNeighbor(int localX, int localY) {
+        if (containsLocal(localX, localY) && blocks[localY][localX]) {
+            return false;
+        }
+
         for (int xDelta = -1; xDelta <= 1; ++xDelta) {
             for (int yDelta = -1; yDelta <= 1; ++yDelta) {
                 int neighborX = xDelta + localX;
@@ -255,6 +264,14 @@ public class Piece implements Cloneable {
         }
 
         return false;
+    }
+
+    public boolean isValidDropTarget(int localX, int localY) {
+        if (draggingX == localX && draggingY == localY) {
+            return false;
+        }
+
+        return hasAnyNonDraggedNeighbor(localX, localY);
     }
 
     public boolean containsLocal(int localX, int localY) {
