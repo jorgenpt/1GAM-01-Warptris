@@ -20,6 +20,7 @@ public class Piece implements Cloneable {
     public boolean warped = false;
 
     final Color outlineColor = Color.white;
+    final Color droppableOutlineColor = Color.green;
 
     public Piece(BlockRenderer renderer, Color color, boolean[][] blocks) throws SlickException {
         this.renderer = renderer;
@@ -33,12 +34,20 @@ public class Piece implements Cloneable {
             return false;
         }
 
-        return blocks[y][x];
+        if (containsLocal(x, y))
+            return blocks[y][x];
+        else
+            return false;
     }
 
     public void render(Graphics g, boolean renderOutlines) {
-        for (int y = 0; y < blocks.length; ++y) {
-            for (int x = 0; x < blocks[y].length; ++x) {
+        int buffer = 0;
+        if (dragging) {
+            buffer = 1;
+        }
+
+        for (int y = -buffer; y < getHeight() + buffer; ++y) {
+            for (int x = -buffer; x < getWidth() + buffer; ++x) {
                 if (shouldRender(x, y)) {
                     int blockX = topLeftX + x;
                     int blockY = topLeftY + y;
@@ -46,6 +55,18 @@ public class Piece implements Cloneable {
                     if (renderOutlines) {
                         renderer.renderOutline(g, blockX, blockY, outlineColor);
                     }
+                } else if (dragging) {
+                    if (x == draggingX && y == draggingY) {
+                        continue;
+                    }
+
+                    if (!hasAnyNonDraggedNeighbor(x, y)) {
+                        continue;
+                    }
+
+                    int blockX = topLeftX + x;
+                    int blockY = topLeftY + y;
+                    renderer.renderOutline(g, blockX, blockY, droppableOutlineColor);
                 }
             }
         }
