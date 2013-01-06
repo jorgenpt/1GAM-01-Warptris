@@ -25,13 +25,15 @@ public class MenuState extends CommonState {
 
     final int MENU_ITEM_SPACING = 10;
 
-    Image title;
+    Image title, splash1GAM;
     MenuItem[] menuItems;
     int selectedMenuItem = 0;
 
     @Override
     public void init(final GameContainer container, final StateBasedGame game) throws SlickException {
         title = new Image("menu_title.png");
+        splash1GAM = new Image("menu_1gam_logo.png");
+
         menuItems = new MenuItem[] { new MenuItem("start", new MenuAction() {
             public void onClick() {
                 game.enterState(PlayingState.STATE_ID, new FadeOutTransition(), new FadeInTransition());
@@ -45,10 +47,10 @@ public class MenuState extends CommonState {
 
     @Override
     public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
-        int y = MENU_ITEM_SPACING * 4;
+        int y = MENU_ITEM_SPACING * 2;
 
         g.drawImage(title, (container.getWidth() - title.getWidth()) / 2, y);
-        y += title.getHeight() + MENU_ITEM_SPACING * 4;
+        y += title.getHeight() + MENU_ITEM_SPACING;
 
         for (int i = 0; i < menuItems.length; ++i) {
             Image image = menuItems[i].image;
@@ -59,6 +61,9 @@ public class MenuState extends CommonState {
             g.drawImage(image, (container.getWidth() - image.getWidth()) / 2, y);
             y += image.getHeight() + MENU_ITEM_SPACING;
         }
+
+        g.drawImage(splash1GAM, (container.getWidth() - splash1GAM.getWidth()) / 2,
+                        container.getHeight() - splash1GAM.getHeight() - MENU_ITEM_SPACING);
     }
 
     @Override
