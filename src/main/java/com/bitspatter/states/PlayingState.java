@@ -184,6 +184,9 @@ public class PlayingState extends CommonState implements MouseListener, BoardLis
 
     @Override
     public void update(GameContainer gc, StateBasedGame game, int delta) throws SlickException {
+        if (!gc.hasFocus())
+            return;
+
         super.update(gc, game, delta);
 
         Input input = gc.getInput();
