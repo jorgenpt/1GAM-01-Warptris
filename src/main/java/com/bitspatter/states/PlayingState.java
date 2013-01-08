@@ -12,9 +12,10 @@ import com.bitspatter.*;
 import com.bitspatter.Board.BoardListener;
 import com.bitspatter.EntropyMeter.EntropyListener;
 import com.bitspatter.renderers.BlockRenderer;
+import com.bitspatter.renderers.InstructionsRenderer;
 
 public class PlayingState extends CommonState implements MouseListener, BoardListener, EntropyListener {
-    private enum PlayState {
+    public enum PlayState {
         Playing,
         Paused,
         Warping,
@@ -38,11 +39,11 @@ public class PlayingState extends CommonState implements MouseListener, BoardLis
     NextPieceBox nextPieceBox;
     Rectangle boardRenderArea;
 
-    Image instructions, warpingInstructions, gameOverImage;
     Audio dragInvalidSound, dragValidSound, pieceLandedSound, mutateSound;
 
     Score score;
     EntropyMeter entropyMeter;
+    InstructionsRenderer instructions;
 
     // Number of ms until we do a "soft drop" (i.e. move the current piece one step down)
     int msTillNextStep;
@@ -70,10 +71,6 @@ public class PlayingState extends CommonState implements MouseListener, BoardLis
         Piece.createPieces(blockRenderer);
         initializeInput(gc);
 
-        instructions = new Image("playing_instructions.png");
-        warpingInstructions = new Image("warping_instructions.png");
-        gameOverImage = new Image("game_over.png");
-
         SoundStore soundStore = SoundStore.get();
         soundStore.init();
 
@@ -93,7 +90,7 @@ public class PlayingState extends CommonState implements MouseListener, BoardLis
         input.addMouseListener(this);
     }
 
-    private void initializeRenderers(GameContainer gc) {
+    private void initializeRenderers(GameContainer gc) throws SlickException {
         int boardHeight = gc.getHeight() - BOARD_MARGIN * 2;
         int blockSize = boardHeight / BOARD_HEIGHT;
         boardHeight = blockSize * BOARD_HEIGHT;
@@ -101,6 +98,7 @@ public class PlayingState extends CommonState implements MouseListener, BoardLis
         boardRenderArea = new Rectangle(BOARD_MARGIN, BOARD_WIDTH, blockSize * BOARD_WIDTH, boardHeight);
         blockRenderer = new BlockRenderer(boardRenderArea, blockSize);
         nextPieceBox = new NextPieceBox(new BlockRenderer(null, blockSize));
+        instructions = new InstructionsRenderer();
     }
 
     @Override
@@ -147,13 +145,6 @@ public class PlayingState extends CommonState implements MouseListener, BoardLis
 
         board.render(g, boardRenderArea, warping || paused);
 
-        Image rightHandPane = instructions;
-        if (state == PlayState.Ended) {
-            rightHandPane = gameOverImage;
-        } else if (warping) {
-            rightHandPane = warpingInstructions;
-        }
-
         float rightPaneX = boardRenderArea.getMaxX() + 2 * BOARD_MARGIN;
         float rightPaneY = BOARD_MARGIN;
 
@@ -163,7 +154,8 @@ public class PlayingState extends CommonState implements MouseListener, BoardLis
         score.render(g, rightPaneX, rightPaneY);
         rightPaneY += score.getHeight() + BOARD_MARGIN;
 
-        g.drawImage(rightHandPane, rightPaneX, rightPaneY);
+        // Also renders "Game Over" if need be.
+        instructions.render(g, gc, state, rightPaneX, rightPaneY);
 
         rightPaneY = BOARD_MARGIN;
         rightPaneX += nextPieceBox.getWidth() + BOARD_MARGIN;
