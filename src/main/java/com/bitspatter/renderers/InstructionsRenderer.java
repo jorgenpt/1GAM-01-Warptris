@@ -114,7 +114,7 @@ public class InstructionsRenderer {
             y = drawLine(g, x, y, "Move", arrowLeft, arrowRight);
             y = drawLine(g, x, y, "Lower one line", arrowDown);
             y = drawLine(g, x, y, "Send to bottom", arrowUp);
-            y = drawLine(g, x, y, "Rotate", new Image[] { shortButton, shortButton }, new String[] { "Z", "X" });
+            y = drawLine(g, x, y, "Rotate", new Image[] { shortButton, shortButton }, new String[] { "X", "C" });
             y = drawLine(g, x, y, "Enter warp mode", new Image[] { longButton }, new String[] { "Space" });
             y = drawLine(g, x, y, "Toggle pause", new Image[] { shortButton }, new String[] { "Esc" });
         }

@@ -208,9 +208,9 @@ public class PlayingState extends CommonState implements MouseListener, BoardLis
             movePieceHorizontally(1);
         }
 
-        if (input.isKeyPressed(Input.KEY_Z)) {
+        if (input.isKeyPressed(Input.KEY_X)) {
             rotatePiece(false);
-        } else if (input.isKeyPressed(Input.KEY_X)) {
+        } else if (input.isKeyPressed(Input.KEY_C)) {
             rotatePiece(true);
         }
 
