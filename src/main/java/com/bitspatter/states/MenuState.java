@@ -23,7 +23,7 @@ public class MenuState extends CommonState {
 
     public final static int STATE_ID = 1;
 
-    final int MENU_ITEM_SPACING = 10;
+    final int MENU_ITEM_SPACING = 15;
 
     Image title, splash1GAM;
     MenuItem[] menuItems;
@@ -50,7 +50,7 @@ public class MenuState extends CommonState {
         int y = MENU_ITEM_SPACING * 2;
 
         g.drawImage(title, (container.getWidth() - title.getWidth()) / 2, y);
-        y += title.getHeight() + MENU_ITEM_SPACING;
+        y += title.getHeight() + MENU_ITEM_SPACING * 3;
 
         for (int i = 0; i < menuItems.length; ++i) {
             Image image = menuItems[i].image;
