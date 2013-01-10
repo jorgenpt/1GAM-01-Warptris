@@ -115,13 +115,9 @@ public class PlayingState extends CommonState implements MouseListener, BoardLis
         state = PlayState.Playing;
     }
 
-    @Override
-    public void render(GameContainer gc, StateBasedGame game, Graphics g) throws SlickException {
+    void renderPiece(Graphics g, GameContainer gc) {
         boolean warping = (state == PlayState.Warping);
         boolean paused = (state == PlayState.Paused);
-        if (warping || paused) {
-            board.renderWarping(g, boardRenderArea);
-        }
 
         if (warping && currentPiece.dragging) {
             Input input = gc.getInput();
@@ -142,9 +138,9 @@ public class PlayingState extends CommonState implements MouseListener, BoardLis
             currentPiece.renderDraggable(g, input.getMouseX() - dragOffsetX, input.getMouseY() - dragOffsetY);
             g.clearClip();
         }
+    }
 
-        board.render(g, boardRenderArea, warping || paused);
-
+    void renderRightPane(Graphics g, GameContainer gc) {
         float rightPaneX = boardRenderArea.getMaxX() + 2 * BOARD_MARGIN;
         float rightPaneY = BOARD_MARGIN;
 
@@ -160,6 +156,21 @@ public class PlayingState extends CommonState implements MouseListener, BoardLis
         rightPaneY = BOARD_MARGIN;
         rightPaneX += nextPieceBox.getWidth() + BOARD_MARGIN;
         entropyMeter.render(g, rightPaneX, rightPaneY);
+    }
+
+    @Override
+    public void render(GameContainer gc, StateBasedGame game, Graphics g) throws SlickException {
+        boolean warping = (state == PlayState.Warping);
+        boolean paused = (state == PlayState.Paused);
+        if (warping || paused) {
+            board.renderWarping(g, boardRenderArea);
+        }
+
+        renderPiece(g, gc);
+
+        board.render(g, boardRenderArea, warping || paused);
+
+        renderRightPane(g, gc);
     }
 
     private void toggleWarping() {
