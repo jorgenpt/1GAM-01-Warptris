@@ -23,9 +23,9 @@ public class InstructionsRenderer {
         longButton = new Image("key_long_blank.png");
         shortButton = new Image("key_blank.png");
 
-        buttonFont = Warptris.getFont(10, false);
-        instructionFont = Warptris.getFont(18, false);
-        gameOverFont = Warptris.getFont(32, false);
+        buttonFont = Warptris.getFont(10);
+        instructionFont = Warptris.getFont(18);
+        gameOverFont = Warptris.getFont(32);
     }
 
     int buttonColumnWidth = -1;

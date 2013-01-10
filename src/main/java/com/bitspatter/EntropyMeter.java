@@ -22,7 +22,7 @@ public class EntropyMeter {
 
     public EntropyMeter(EntropyListener listener) throws SlickException {
         this.listener = listener;
-        this.font = Warptris.getFont(16, false);
+        this.font = Warptris.getFont(16);
     }
 
     public void render(Graphics g, float x, float y) {

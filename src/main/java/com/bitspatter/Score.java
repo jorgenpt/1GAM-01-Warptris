@@ -9,7 +9,7 @@ public class Score {
     final int margin = 10;
 
     public Score() throws SlickException {
-        this.font = Warptris.getFont(16, false);
+        this.font = Warptris.getFont(16);
         this.score = 0;
     }
 
